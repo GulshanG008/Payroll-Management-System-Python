@@ -8,14 +8,10 @@ from decimal import Decimal
 from tkinter import messagebox
 
 class SalaryDAO:
-    """
-    Handles data access operations for SalaryStructure records.
-    """
     def __init__(self):
         self.create_salary_structure_table()
 
     def create_salary_structure_table(self):
-        """Creates the salary_structures table if it does not exist."""
         conn = get_db_connection()
         if not conn:
             return
@@ -43,10 +39,7 @@ class SalaryDAO:
             cursor.close()
             release_db_connection(conn)
 
-    # --- R: READ Operations ---
-
     def get_all_structures(self):
-        """Retrieves all salary structure records and returns them as SalaryStructure objects."""
         conn = get_db_connection()
         if not conn:
             return []
@@ -57,7 +50,6 @@ class SalaryDAO:
         
         try:
             cursor.execute(query)
-            # Convert raw database dicts into model objects
             structures = [SalaryStructure.from_db_record(rec) for rec in cursor.fetchall()]
         except Error as e:
             print(f"Error fetching salary structures: {e}")
@@ -69,7 +61,6 @@ class SalaryDAO:
         return structures
 
     def get_structure_by_id(self, structure_id: int) -> SalaryStructure | None:
-        """Retrieves a single salary structure by its ID."""
         conn = get_db_connection()
         if not conn:
             return None
@@ -90,10 +81,7 @@ class SalaryDAO:
             cursor.close()
             release_db_connection(conn)
 
-    # --- C, U, D Operations (Skeletal) ---
-
     def add_structure(self, structure: SalaryStructure) -> int | None:
-        """Inserts a new salary structure record."""
         conn = get_db_connection()
         if not conn: return None
 
@@ -118,7 +106,6 @@ class SalaryDAO:
             release_db_connection(conn)
 
     def update_structure(self, structure: SalaryStructure) -> bool:
-        """Updates an existing salary structure record."""
         conn = get_db_connection()
         if not conn: return False
 
@@ -144,7 +131,6 @@ class SalaryDAO:
             release_db_connection(conn)
 
     def delete_structure(self, structure_id: int) -> bool:
-        """Deletes a salary structure record by ID."""
         conn = get_db_connection()
         if not conn: return False
 
