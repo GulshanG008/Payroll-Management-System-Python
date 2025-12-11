@@ -3,8 +3,8 @@
 import tkinter as tk
 from tkinter import messagebox
 
-from services.auth_service import AuthService
-from gui.dashboard_window import DashboardWindow 
+#from services.auth_service import AuthService
+from dashboard_window import DashboardWindow 
 
 class LoginWindow:
     def __init__(self, root):
@@ -12,7 +12,7 @@ class LoginWindow:
         self.root.title("Payroll Management - Admin Login")
         self.root.configure(bg="#f0f0f0")
         
-        self.auth_service = AuthService()
+       # self.auth_service = AuthService()
 
         window_width = 350
         window_height = 260

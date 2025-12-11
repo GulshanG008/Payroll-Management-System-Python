@@ -3,7 +3,7 @@
 import tkinter as tk
 from tkinter import messagebox
 
-from gui.employee_window import EmployeeManagerWindow
+#from gui.employee_window import EmployeeManagerWindow
 
 class DashboardWindow:
     def __init__(self, root, login_window_class):
@@ -57,11 +57,11 @@ class DashboardWindow:
         tk.Button(self.root, text="Logout", width=15, font=("Arial", 11, "bold"),
                   bg="#ff6666", fg="white", command=self.logout).pack(pady=40)
 
-    def open_employee_manager(self):
+    """def open_employee_manager(self):
         manager_root = tk.Toplevel(self.root)
         EmployeeManagerWindow(manager_root)
         manager_root.grab_set() 
-        self.root.wait_window(manager_root) 
+        self.root.wait_window(manager_root)""" 
     
     def logout(self):        
         if messagebox.askyesno("Confirm Logout", "Are you sure you want to log out?"):
