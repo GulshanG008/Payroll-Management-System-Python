@@ -46,14 +46,12 @@ class DashboardWindow:
         tk.Button(content_frame, text="Generate Payroll", width=20, height=2, font=button_font,
                   state=tk.DISABLED).grid(row=0, column=1, padx=20, pady=10) 
                   
-        # Row 1: Reporting and Tools
         tk.Button(content_frame, text="View Reports", width=20, height=2, font=button_font,
                   state=tk.DISABLED).grid(row=1, column=0, padx=20, pady=10)
                   
         tk.Button(content_frame, text="Employee Attendance", width=20, height=2, font=button_font,
                   state=tk.DISABLED).grid(row=1, column=1, padx=20, pady=10) 
         
-        # --- LOGOUT BUTTON ---
         tk.Button(self.root, text="Logout", width=15, font=("Arial", 11, "bold"),
                   bg="#ff6666", fg="white", command=self.logout).pack(pady=40)
 
