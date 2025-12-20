@@ -3,68 +3,119 @@
 import tkinter as tk
 from tkinter import messagebox
 
-#from gui.employee_window import EmployeeManagerWindow
+from gui.payroll_window import PayrollWindow
+from services.payroll_service import PayrollService
+
 
 class DashboardWindow:
-    def __init__(self, root, login_window_class):
+    """
+    Main dashboard after successful admin login.
+    """
+
+    def __init__(self, root, auth_service, on_logout):
         self.root = root
-        self.login_window_class = login_window_class 
-        
+        self.auth_service = auth_service
+        self.on_logout = on_logout
+
+        self.payroll_service = PayrollService()
+
         self.root.title("Payroll Management System - Dashboard")
         self.root.configure(bg="#e8f0fe")
-        
-        window_width = 800
-        window_height = 600
-        self._center_window(window_width, window_height)
-        
+
+        self._center_window(900, 600)
         self._create_widgets()
 
+    # --------------------------------------------------
     def _center_window(self, width, height):
-        screen_width = self.root.winfo_screenwidth()
-        screen_height = self.root.winfo_screenheight()
-        
-        x = (screen_width // 2) - (width // 2)
-        y = (screen_height // 2) - (height // 2)
-        
+        sw = self.root.winfo_screenwidth()
+        sh = self.root.winfo_screenheight()
+        x = (sw // 2) - (width // 2)
+        y = (sh // 2) - (height // 2)
         self.root.geometry(f"{width}x{height}+{x}+{y}")
-        
+
+    # --------------------------------------------------
     def _create_widgets(self):
-        tk.Label(self.root, 
-                 text="Welcome to the Payroll Management Dashboard", 
-                 font=("Arial", 20, "bold"),
-                 bg="#e8f0fe",
-                 fg="#003366").pack(pady=40)
+        admin = self.auth_service.current_user
 
+        # Header
+        header = tk.Frame(self.root, bg="#003366", height=60)
+        header.pack(fill="x")
+
+        tk.Label(
+            header,
+            text="Payroll Management System",
+            font=("Arial", 18, "bold"),
+            bg="#003366",
+            fg="white"
+        ).pack(side="left", padx=20)
+
+        tk.Label(
+            header,
+            text=f"Logged in as: {admin['username']}",
+            font=("Arial", 11),
+            bg="#003366",
+            fg="white"
+        ).pack(side="right", padx=20)
+
+        # Main content
         content_frame = tk.Frame(self.root, bg="#e8f0fe")
-        content_frame.pack(pady=20)
-        
-        button_font = ("Arial", 12)
-        
-        tk.Button(content_frame, text="Manage Employees", width=20, height=2, font=button_font,
-                  command=self.open_employee_manager).grid(row=0, column=0, padx=20, pady=10)
-                  
-        tk.Button(content_frame, text="Generate Payroll", width=20, height=2, font=button_font,
-                  state=tk.DISABLED).grid(row=0, column=1, padx=20, pady=10) 
-                  
-        # Row 1: Reporting and Tools
-        tk.Button(content_frame, text="View Reports", width=20, height=2, font=button_font,
-                  state=tk.DISABLED).grid(row=1, column=0, padx=20, pady=10)
-                  
-        tk.Button(content_frame, text="Employee Attendance", width=20, height=2, font=button_font,
-                  state=tk.DISABLED).grid(row=1, column=1, padx=20, pady=10) 
-        
-        # --- LOGOUT BUTTON ---
-        tk.Button(self.root, text="Logout", width=15, font=("Arial", 11, "bold"),
-                  bg="#ff6666", fg="white", command=self.logout).pack(pady=40)
+        content_frame.pack(pady=60)
 
-    """def open_employee_manager(self):
-        manager_root = tk.Toplevel(self.root)
-        EmployeeManagerWindow(manager_root)
-        manager_root.grab_set() 
-        self.root.wait_window(manager_root)""" 
-    
-    def logout(self):        
-        if messagebox.askyesno("Confirm Logout", "Are you sure you want to log out?"):
-            self.root.destroy()
-            login_root = tk.Tk()
-            self.login_window_class(login_root)
+        button_font = ("Arial", 12)
+
+        tk.Button(
+            content_frame,
+            text="Manage Employees",
+            width=22,
+            height=2,
+            font=button_font,
+            state=tk.DISABLED   # can be enabled later
+        ).grid(row=0, column=0, padx=20, pady=15)
+
+        tk.Button(
+            content_frame,
+            text="Generate Payroll",
+            width=22,
+            height=2,
+            font=button_font,
+            command=self.open_payroll_window
+        ).grid(row=0, column=1, padx=20, pady=15)
+
+        tk.Button(
+            content_frame,
+            text="Employee Attendance",
+            width=22,
+            height=2,
+            font=button_font,
+            state=tk.DISABLED
+        ).grid(row=1, column=0, padx=20, pady=15)
+
+        tk.Button(
+            content_frame,
+            text="View Reports",
+            width=22,
+            height=2,
+            font=button_font,
+            state=tk.DISABLED
+        ).grid(row=1, column=1, padx=20, pady=15)
+
+        # Logout button
+        tk.Button(
+            self.root,
+            text="Logout",
+            width=15,
+            font=("Arial", 11, "bold"),
+            bg="#ff6666",
+            fg="white",
+            command=self.logout
+        ).pack(pady=30)
+
+    # --------------------------------------------------
+    def open_payroll_window(self):
+        PayrollWindow(self.root, self.payroll_service)
+
+    # --------------------------------------------------
+    def logout(self):
+        if messagebox.askyesno("Confirm Logout", "Are you sure you want to logout?"):
+            self.auth_service.logout_admin()
+            self.on_logout()
