@@ -1,122 +1,210 @@
 # database/employee_dao.py
 
-import mysql.connector
-from mysql.connector import Error
-from database.connection import get_db_connection, release_db_connection
-from tkinter import messagebox # Used for showing database errors to the user
+from typing import List, Optional
+from decimal import Decimal
+
+from database.connection import (
+    get_db_connection,
+    get_db_cursor,
+    release_db_connection
+)
+
 
 class EmployeeDAO:
-    def __init__(self):
-        self.create_employee_table()
+    """
+    Data Access Object for Employee table.
+    Handles CRUD operations for employees.
+    """
 
-    def create_employee_table(self):
-        conn = get_db_connection()
-        if not conn:
-            return
-
-        cursor = conn.cursor()
+    # --------------------------------------------------
+    # CREATE
+    # --------------------------------------------------
+    def create_employee(
+        self,
+        emp_code: str,
+        full_name: str,
+        gender: str,
+        contact_no: str,
+        email: str,
+        date_of_joining,
+        basic_salary: Decimal,
+        structure_id: Optional[int] = None
+    ) -> int:
         query = """
-        CREATE TABLE IF NOT EXISTS employees (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            name VARCHAR(255) NOT NULL,
-            role VARCHAR(100),
-            salary DECIMAL(10, 2) NOT NULL,
-            hire_date DATE
-        )
+            INSERT INTO employee (
+                emp_code,
+                full_name,
+                gender,
+                contact_no,
+                email,
+                date_of_joining,
+                basic_salary,
+                structure_id
+            )
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
         """
+
+        conn = get_db_connection()
+        cursor = get_db_cursor(conn)
+
+        try:
+            cursor.execute(
+                query,
+                (
+                    emp_code,
+                    full_name,
+                    gender,
+                    contact_no,
+                    email,
+                    date_of_joining,
+                    basic_salary,
+                    structure_id
+                )
+            )
+            conn.commit()
+            return cursor.lastrowid
+        finally:
+            release_db_connection(conn)
+
+    # --------------------------------------------------
+    # READ BY ID
+    # --------------------------------------------------
+    def get_by_id(self, emp_id: int) -> Optional[dict]:
+        query = """
+            SELECT *
+            FROM employee
+            WHERE emp_id = %s
+        """
+
+        conn = get_db_connection()
+        cursor = get_db_cursor(conn)
+
+        try:
+            cursor.execute(query, (emp_id,))
+            return cursor.fetchone()
+        finally:
+            release_db_connection(conn)
+
+    # --------------------------------------------------
+    # READ BY EMP CODE
+    # --------------------------------------------------
+    def get_by_emp_code(self, emp_code: str) -> Optional[dict]:
+        query = """
+            SELECT *
+            FROM employee
+            WHERE emp_code = %s
+        """
+
+        conn = get_db_connection()
+        cursor = get_db_cursor(conn)
+
+        try:
+            cursor.execute(query, (emp_code,))
+            return cursor.fetchone()
+        finally:
+            release_db_connection(conn)
+
+    # --------------------------------------------------
+    # READ ALL ACTIVE EMPLOYEES
+    # --------------------------------------------------
+    def get_all_active(self) -> List[dict]:
+        query = """
+            SELECT *
+            FROM employee
+            WHERE status = 'ACTIVE'
+            ORDER BY full_name
+        """
+
+        conn = get_db_connection()
+        cursor = get_db_cursor(conn)
+
         try:
             cursor.execute(query)
-            conn.commit()
-            print("Employees table checked/created successfully.")
-        except Error as e:
-            print(f"Error creating employees table: {e}")
-            messagebox.showerror("DB Setup Error", f"Could not create employees table: {e}")
+            return cursor.fetchall()
         finally:
-            cursor.close()
             release_db_connection(conn)
 
-    def get_all_employees(self):
-        conn = get_db_connection()
-        if not conn:
-            return []
-            
-        cursor = conn.cursor(dictionary=True) 
-        query = "SELECT id, name, role, salary, hire_date FROM employees ORDER BY id"
-        employees = []
-        
-        try:
-            cursor.execute(query)
-            employees = cursor.fetchall()
-        except Error as e:
-            print(f"Error fetching employees: {e}")
-            messagebox.showerror("DB Read Error", "Failed to retrieve employee list.")
-        finally:
-            cursor.close()
-            release_db_connection(conn)
-            
-        return employees
+    # --------------------------------------------------
+    # UPDATE
+    # --------------------------------------------------
+    def update_employee(
+        self,
+        emp_id: int,
+        full_name: str,
+        gender: str,
+        contact_no: str,
+        email: str,
+        basic_salary: Decimal,
+        structure_id: Optional[int]
+    ) -> bool:
+        query = """
+            UPDATE employee
+            SET
+                full_name = %s,
+                gender = %s,
+                contact_no = %s,
+                email = %s,
+                basic_salary = %s,
+                structure_id = %s
+            WHERE emp_id = %s
+        """
 
-    def add_employee(self, name, role, salary, hire_date=None):
         conn = get_db_connection()
-        if not conn:
-            return None
+        cursor = get_db_cursor(conn)
 
-        cursor = conn.cursor()
-        query = "INSERT INTO employees (name, role, salary, hire_date) VALUES (%s, %s, %s, %s)"
-        values = (name, role, salary, hire_date if hire_date else mysql.connector.Date.today())
-        
         try:
-            cursor.execute(query, values)
+            cursor.execute(
+                query,
+                (
+                    full_name,
+                    gender,
+                    contact_no,
+                    email,
+                    basic_salary,
+                    structure_id,
+                    emp_id
+                )
+            )
             conn.commit()
-            return cursor.lastrowid 
-        except Error as e:
-            print(f"Error adding employee: {e}")
-            messagebox.showerror("DB Write Error", f"Failed to add employee: {e}")
-            conn.rollback()
-            return None
+            return cursor.rowcount > 0
         finally:
-            cursor.close()
-            release_db_connection(conn)
-
-    def update_employee(self, employee_id, name, role, salary, hire_date):
-        conn = get_db_connection()
-        if not conn:
-            return False
-
-        cursor = conn.cursor()
-        query = "UPDATE employees SET name = %s, role = %s, salary = %s, hire_date = %s WHERE id = %s"
-        values = (name, role, salary, hire_date, employee_id)
-        
-        try:
-            cursor.execute(query, values)
-            conn.commit()
-            return cursor.rowcount > 0 
-        except Error as e:
-            print(f"Error updating employee: {e}")
-            messagebox.showerror("DB Update Error", f"Failed to update employee: {e}")
-            conn.rollback()
-            return False
-        finally:
-            cursor.close()
             release_db_connection(conn)
 
-    def delete_employee(self, employee_id):
-        conn = get_db_connection()
-        if not conn:
-            return False
+    # --------------------------------------------------
+    # DEACTIVATE (SOFT DELETE)
+    # --------------------------------------------------
+    def deactivate_employee(self, emp_id: int) -> bool:
+        query = """
+            UPDATE employee
+            SET status = 'INACTIVE'
+            WHERE emp_id = %s
+        """
 
-        cursor = conn.cursor()
-        query = "DELETE FROM employees WHERE id = %s"
-        
+        conn = get_db_connection()
+        cursor = get_db_cursor(conn)
+
         try:
-            cursor.execute(query, (employee_id,))
+            cursor.execute(query, (emp_id,))
             conn.commit()
-            return cursor.rowcount > 0 
-        except Error as e:
-            print(f"Error deleting employee: {e}")
-            messagebox.showerror("DB Delete Error", f"Failed to delete employee: {e}")
-            conn.rollback()
-            return False
+            return cursor.rowcount > 0
         finally:
-            cursor.close()
+            release_db_connection(conn)
+
+    # --------------------------------------------------
+    # DELETE (HARD DELETE - USE CAREFULLY)
+    # --------------------------------------------------
+    def delete_employee(self, emp_id: int) -> bool:
+        query = """
+            DELETE FROM employee
+            WHERE emp_id = %s
+        """
+
+        conn = get_db_connection()
+        cursor = get_db_cursor(conn)
+
+        try:
+            cursor.execute(query, (emp_id,))
+            conn.commit()
+            return cursor.rowcount > 0
+        finally:
             release_db_connection(conn)

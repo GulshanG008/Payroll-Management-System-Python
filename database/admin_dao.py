@@ -1,98 +1,112 @@
 # database/admin_dao.py
-from tkinter import messagebox
-import mysql.connector
-from mysql.connector import Error
-from database.connection import get_db_connection, release_db_connection
+
+from typing import Optional
+
+from database.connection import (
+    get_db_connection,
+    get_db_cursor,
+    release_db_connection
+)
+
 
 class AdminDAO:
-    def __init__(self):
-        self.create_admin_table()
+    """
+    Data Access Object for Admin authentication.
+    Handles admin login and admin management.
+    """
 
-    def create_admin_table(self):
-        conn = get_db_connection()
-        if not conn:
-            return
-
-        cursor = conn.cursor()
+    # --------------------------------------------------
+    # CREATE ADMIN
+    # --------------------------------------------------
+    def create_admin(self, username: str, password_hash: str) -> int:
         query = """
-        CREATE TABLE IF NOT EXISTS admin_users (
-            user_id INT AUTO_INCREMENT PRIMARY KEY,
-            username VARCHAR(50) NOT NULL UNIQUE,
-            password_hash VARCHAR(255) NOT NULL,
-            full_name VARCHAR(100),
-            is_super_admin BOOLEAN DEFAULT FALSE
-        )
+            INSERT INTO admin (username, password_hash)
+            VALUES (%s, %s)
         """
+
+        conn = get_db_connection()
+        cursor = get_db_cursor(conn)
+
         try:
-            cursor.execute(query)
+            cursor.execute(query, (username, password_hash))
             conn.commit()
-            print("Admin table checked/created successfully.")
-            self.add_initial_admin(conn) 
-        except Error as e:
-            print(f"Error creating admin table: {e}")
+            return cursor.lastrowid
         finally:
-            cursor.close()
             release_db_connection(conn)
 
-    def add_initial_admin(self, conn):
-        cursor = conn.cursor()
-        
-        cursor.execute("SELECT COUNT(*) FROM admin_users")
-        if cursor.fetchone()[0] == 0:
-            initial_password = "admin123" 
-            
-            insert_query = """
-            INSERT INTO admin_users (username, password_hash, full_name, is_super_admin)
-            VALUES (%s, %s, %s, %s)
-            """
-            values = ("admin", initial_password, "System Administrator", True)
-            
-            try:
-                cursor.execute(insert_query, values)
-                conn.commit()
-                print("Initial default admin user 'admin' added (password: admin123).")
-            except Error as e:
-                print(f"Error adding initial admin: {e}")
-                conn.rollback()
-        
-        cursor.close()
-
-    def authenticate_admin(self, uid, username, password):
-        conn = get_db_connection()
-        if not conn:
-            messagebox.showerror("Database Error", "Connection failed during login attempt.")
-            return False
-            
-        cursor = conn.cursor()
-
+    # --------------------------------------------------
+    # AUTHENTICATE ADMIN (LOGIN)
+    # --------------------------------------------------
+    def get_by_username(self, username: str) -> Optional[dict]:
         query = """
-        SELECT password_hash FROM admin_users 
-        WHERE user_id = %s AND username = %s
+            SELECT *
+            FROM admin
+            WHERE username = %s
         """
-        values = (uid, username)
-        
-        is_authenticated = False
-        try:
-            cursor.execute(query, values)
-            record = cursor.fetchone()
-            
-            if record:
-                stored_password = record[0]
-                if password == stored_password:
-                    is_authenticated = True
-                else:
-                    print("Debug: Password mismatch.")
-            else:
-                print("Debug: User ID/Username not found.")
-                
-        except Error as e:
-            print(f"Authentication Error: {e}")
-            messagebox.showerror("Authentication Error", "A database error occurred during login.")
-        finally:
-            cursor.close()
-            release_db_connection(conn)
-            
-        return is_authenticated
 
-    def get_admin_user_by_id(self, user_id):
-        pass
+        conn = get_db_connection()
+        cursor = get_db_cursor(conn)
+
+        try:
+            cursor.execute(query, (username,))
+            return cursor.fetchone()
+        finally:
+            release_db_connection(conn)
+
+    # --------------------------------------------------
+    # GET ADMIN BY ID
+    # --------------------------------------------------
+    def get_by_id(self, admin_id: int) -> Optional[dict]:
+        query = """
+            SELECT admin_id, username, created_at
+            FROM admin
+            WHERE admin_id = %s
+        """
+
+        conn = get_db_connection()
+        cursor = get_db_cursor(conn)
+
+        try:
+            cursor.execute(query, (admin_id,))
+            return cursor.fetchone()
+        finally:
+            release_db_connection(conn)
+
+    # --------------------------------------------------
+    # UPDATE PASSWORD
+    # --------------------------------------------------
+    def update_password(self, admin_id: int, new_password_hash: str) -> bool:
+        query = """
+            UPDATE admin
+            SET password_hash = %s
+            WHERE admin_id = %s
+        """
+
+        conn = get_db_connection()
+        cursor = get_db_cursor(conn)
+
+        try:
+            cursor.execute(query, (new_password_hash, admin_id))
+            conn.commit()
+            return cursor.rowcount > 0
+        finally:
+            release_db_connection(conn)
+
+    # --------------------------------------------------
+    # DELETE ADMIN (OPTIONAL)
+    # --------------------------------------------------
+    def delete_admin(self, admin_id: int) -> bool:
+        query = """
+            DELETE FROM admin
+            WHERE admin_id = %s
+        """
+
+        conn = get_db_connection()
+        cursor = get_db_cursor(conn)
+
+        try:
+            cursor.execute(query, (admin_id,))
+            conn.commit()
+            return cursor.rowcount > 0
+        finally:
+            release_db_connection(conn)

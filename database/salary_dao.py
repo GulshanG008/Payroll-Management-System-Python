@@ -1,151 +1,191 @@
 # database/salary_dao.py
 
-import mysql.connector
-from mysql.connector import Error
-from database.connection import get_db_connection, release_db_connection
-from models.salary_structure import SalaryStructure
 from decimal import Decimal
-from tkinter import messagebox
+from typing import List, Optional
+
+from database.connection import (
+    get_db_connection,
+    get_db_cursor,
+    release_db_connection
+)
+from models.salary_structure import SalaryStructure
+
 
 class SalaryDAO:
-    def __init__(self):
-        self.create_salary_structure_table()
+    """
+    Data Access Object for Salary Structure table.
+    Handles all database operations related to salary structures.
+    """
 
-    def create_salary_structure_table(self):
-        conn = get_db_connection()
-        if not conn:
-            return
-
-        cursor = conn.cursor()
+    # --------------------------------------------------
+    # CREATE
+    # --------------------------------------------------
+    def create_salary_structure(self, structure: SalaryStructure) -> int:
         query = """
-        CREATE TABLE IF NOT EXISTS salary_structures (
-            structure_id INT AUTO_INCREMENT PRIMARY KEY,
-            name VARCHAR(100) NOT NULL UNIQUE,
-            base_salary_min DECIMAL(10, 2) NOT NULL,
-            base_salary_max DECIMAL(10, 2) NOT NULL,
-            housing_allowance_pct DECIMAL(5, 4) NOT NULL,
-            transport_allowance DECIMAL(10, 2) NOT NULL,
-            tax_rate_pct DECIMAL(5, 4) NOT NULL
-        )
+            INSERT INTO salary_structure (
+                name,
+                base_salary_min,
+                base_salary_max,
+                housing_allowance_pct,
+                transport_allowance,
+                tax_rate_pct
+            )
+            VALUES (%s, %s, %s, %s, %s, %s)
         """
+
+        conn = get_db_connection()
+        cursor = get_db_cursor(conn)
+
         try:
-            cursor.execute(query)
+            cursor.execute(
+                query,
+                (
+                    structure.name,
+                    structure.base_salary_min,
+                    structure.base_salary_max,
+                    structure.housing_allowance_pct,
+                    structure.transport_allowance,
+                    structure.tax_rate_pct,
+                )
+            )
             conn.commit()
-            print("Salary structures table checked/created successfully.")
-        except Error as e:
-            print(f"Error creating salary structures table: {e}")
-            messagebox.showerror("DB Setup Error", f"Could not create salary structures table: {e}")
+            return cursor.lastrowid
+
         finally:
-            cursor.close()
             release_db_connection(conn)
 
-    def get_all_structures(self):
-        conn = get_db_connection()
-        if not conn:
-            return []
-            
-        cursor = conn.cursor(dictionary=True) 
-        query = "SELECT * FROM salary_structures ORDER BY structure_id"
-        structures = []
-        
-        try:
-            cursor.execute(query)
-            structures = [SalaryStructure.from_db_record(rec) for rec in cursor.fetchall()]
-        except Error as e:
-            print(f"Error fetching salary structures: {e}")
-            messagebox.showerror("DB Read Error", "Failed to retrieve salary structures list.")
-        finally:
-            cursor.close()
-            release_db_connection(conn)
-            
-        return structures
+    # --------------------------------------------------
+    # READ BY ID
+    # --------------------------------------------------
+    def get_by_id(self, structure_id: int) -> Optional[SalaryStructure]:
+        query = """
+            SELECT *
+            FROM salary_structure
+            WHERE structure_id = %s
+        """
 
-    def get_structure_by_id(self, structure_id: int) -> SalaryStructure | None:
         conn = get_db_connection()
-        if not conn:
-            return None
-            
-        cursor = conn.cursor(dictionary=True)
-        query = "SELECT * FROM salary_structures WHERE structure_id = %s"
-        
+        cursor = get_db_cursor(conn)
+
         try:
             cursor.execute(query, (structure_id,))
             record = cursor.fetchone()
-            if record:
-                return SalaryStructure.from_db_record(record)
-            return None
-        except Error as e:
-            print(f"Error fetching salary structure ID {structure_id}: {e}")
-            return None
+            return (
+                SalaryStructure.from_db_record(record)
+                if record else None
+            )
         finally:
-            cursor.close()
             release_db_connection(conn)
 
-    def add_structure(self, structure: SalaryStructure) -> int | None:
-        conn = get_db_connection()
-        if not conn: return None
+    # --------------------------------------------------
+    # READ ALL
+    # --------------------------------------------------
+    def get_all(self) -> List[SalaryStructure]:
+        query = """
+            SELECT *
+            FROM salary_structure
+            ORDER BY base_salary_min ASC
+        """
 
-        cursor = conn.cursor()
-        query = """INSERT INTO salary_structures (name, base_salary_min, base_salary_max, 
-                   housing_allowance_pct, transport_allowance, tax_rate_pct) 
-                   VALUES (%s, %s, %s, %s, %s, %s)"""
-        values = (structure.name, structure.base_salary_min, structure.base_salary_max,
-                  structure.housing_allowance_pct, structure.transport_allowance, structure.tax_rate_pct)
-        
+        conn = get_db_connection()
+        cursor = get_db_cursor(conn)
+
         try:
-            cursor.execute(query, values)
-            conn.commit()
-            return cursor.lastrowid
-        except Error as e:
-            print(f"Error adding structure: {e}")
-            messagebox.showerror("DB Write Error", f"Failed to add salary structure: {e}")
-            conn.rollback()
-            return None
+            cursor.execute(query)
+            records = cursor.fetchall()
+            return [
+                SalaryStructure.from_db_record(r)
+                for r in records
+            ]
         finally:
-            cursor.close()
             release_db_connection(conn)
 
-    def update_structure(self, structure: SalaryStructure) -> bool:
-        conn = get_db_connection()
-        if not conn: return False
+    # --------------------------------------------------
+    # FIND STRUCTURE FOR BASIC SALARY
+    # --------------------------------------------------
+    def get_structure_for_salary(
+        self,
+        basic_salary: Decimal
+    ) -> Optional[SalaryStructure]:
+        """
+        Finds salary structure where:
+        base_salary_min <= basic_salary <= base_salary_max
+        """
 
-        cursor = conn.cursor()
-        query = """UPDATE salary_structures SET name = %s, base_salary_min = %s, 
-                   base_salary_max = %s, housing_allowance_pct = %s, 
-                   transport_allowance = %s, tax_rate_pct = %s WHERE structure_id = %s"""
-        values = (structure.name, structure.base_salary_min, structure.base_salary_max,
-                  structure.housing_allowance_pct, structure.transport_allowance, 
-                  structure.tax_rate_pct, structure.structure_id)
-        
+        query = """
+            SELECT *
+            FROM salary_structure
+            WHERE %s BETWEEN base_salary_min AND base_salary_max
+            LIMIT 1
+        """
+
+        conn = get_db_connection()
+        cursor = get_db_cursor(conn)
+
         try:
-            cursor.execute(query, values)
+            cursor.execute(query, (basic_salary,))
+            record = cursor.fetchone()
+            return (
+                SalaryStructure.from_db_record(record)
+                if record else None
+            )
+        finally:
+            release_db_connection(conn)
+
+    # --------------------------------------------------
+    # UPDATE
+    # --------------------------------------------------
+    def update_salary_structure(self, structure: SalaryStructure) -> bool:
+        query = """
+            UPDATE salary_structure
+            SET
+                name = %s,
+                base_salary_min = %s,
+                base_salary_max = %s,
+                housing_allowance_pct = %s,
+                transport_allowance = %s,
+                tax_rate_pct = %s
+            WHERE structure_id = %s
+        """
+
+        conn = get_db_connection()
+        cursor = get_db_cursor(conn)
+
+        try:
+            cursor.execute(
+                query,
+                (
+                    structure.name,
+                    structure.base_salary_min,
+                    structure.base_salary_max,
+                    structure.housing_allowance_pct,
+                    structure.transport_allowance,
+                    structure.tax_rate_pct,
+                    structure.structure_id,
+                )
+            )
             conn.commit()
             return cursor.rowcount > 0
-        except Error as e:
-            print(f"Error updating structure: {e}")
-            messagebox.showerror("DB Update Error", f"Failed to update structure: {e}")
-            conn.rollback()
-            return False
+
         finally:
-            cursor.close()
             release_db_connection(conn)
 
-    def delete_structure(self, structure_id: int) -> bool:
-        conn = get_db_connection()
-        if not conn: return False
+    # --------------------------------------------------
+    # DELETE
+    # --------------------------------------------------
+    def delete_salary_structure(self, structure_id: int) -> bool:
+        query = """
+            DELETE FROM salary_structure
+            WHERE structure_id = %s
+        """
 
-        cursor = conn.cursor()
-        query = "DELETE FROM salary_structures WHERE structure_id = %s"
-        
+        conn = get_db_connection()
+        cursor = get_db_cursor(conn)
+
         try:
             cursor.execute(query, (structure_id,))
             conn.commit()
             return cursor.rowcount > 0
-        except Error as e:
-            print(f"Error deleting structure ID {structure_id}: {e}")
-            messagebox.showerror("DB Delete Error", "Failed to delete salary structure.")
-            conn.rollback()
-            return False
+
         finally:
-            cursor.close()
             release_db_connection(conn)
