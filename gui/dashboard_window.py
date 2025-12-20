@@ -3,7 +3,10 @@
 import tkinter as tk
 from tkinter import messagebox
 
+
 #from gui.employee_window import EmployeeManagerWindow
+#from gui.payroll_window import PayrollWindow
+
 
 class DashboardWindow:
     def __init__(self, root, login_window_class):
@@ -43,15 +46,17 @@ class DashboardWindow:
         tk.Button(content_frame, text="Manage Employees", width=20, height=2, font=button_font,
                   command=self.open_employee_manager).grid(row=0, column=0, padx=20, pady=10)
                   
-        tk.Button(content_frame, text="Generate Payroll", width=20, height=2, font=button_font,
-                  state=tk.DISABLED).grid(row=0, column=1, padx=20, pady=10) 
-                  
+        tk.Button(content_frame, text="Generate Payroll",width=20, height=2, font=button_font, 
+                  command=self.open_payroll_window).grid(row=0, column=1, padx=20, pady=10)
+
+        # Row 1: Reporting and Tools
         tk.Button(content_frame, text="View Reports", width=20, height=2, font=button_font,
                   state=tk.DISABLED).grid(row=1, column=0, padx=20, pady=10)
                   
         tk.Button(content_frame, text="Employee Attendance", width=20, height=2, font=button_font,
                   state=tk.DISABLED).grid(row=1, column=1, padx=20, pady=10) 
         
+        # --- LOGOUT BUTTON ---
         tk.Button(self.root, text="Logout", width=15, font=("Arial", 11, "bold"),
                   bg="#ff6666", fg="white", command=self.logout).pack(pady=40)
 
@@ -61,6 +66,9 @@ class DashboardWindow:
         manager_root.grab_set() 
         self.root.wait_window(manager_root)""" 
     
+    """def open_payroll_window(self):
+        PayrollWindow(self.root)"""
+
     def logout(self):        
         if messagebox.askyesno("Confirm Logout", "Are you sure you want to log out?"):
             self.root.destroy()
