@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-=======
 # database/attendance_dao.py
 
 from database.connection import (
@@ -138,4 +136,4 @@ class AttendanceDAO:
             return cursor.fetchall()
         finally:
             release_db_connection(conn)
->>>>>>> backend
+
