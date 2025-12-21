@@ -41,15 +41,21 @@ class LoginWindow:
         form_frame.pack(pady=10)
 
         # Username
-        tk.Label(form_frame, text="Username:", font=("Arial", 11)) \
-            .grid(row=0, column=0, padx=10, pady=10, sticky="e")
+        tk.Label(
+            form_frame,
+            text="Username:",
+            font=("Arial", 11)
+        ).grid(row=0, column=0, padx=10, pady=10, sticky="e")
 
         self.username_entry = tk.Entry(form_frame, width=25)
         self.username_entry.grid(row=0, column=1, pady=10)
 
         # Password
-        tk.Label(form_frame, text="Password:", font=("Arial", 11)) \
-            .grid(row=1, column=0, padx=10, pady=10, sticky="e")
+        tk.Label(
+            form_frame,
+            text="Password:",
+            font=("Arial", 11)
+        ).grid(row=1, column=0, padx=10, pady=10, sticky="e")
 
         self.password_entry = tk.Entry(form_frame, width=25, show="*")
         self.password_entry.grid(row=1, column=1, pady=10)
@@ -76,7 +82,10 @@ class LoginWindow:
             return
 
         if self.auth_service.login_admin(username, password):
-            messagebox.showinfo("Login Successful", "Welcome to the system!")
+            messagebox.showinfo(
+                "Login Successful",
+                "Welcome to the system!"
+            )
             self.on_login_success()
         else:
             messagebox.showerror(
