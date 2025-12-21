@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-=======
 # gui/dashboard_window.py
 
 import tkinter as tk
@@ -145,4 +143,3 @@ class DashboardWindow:
         ):
             self.auth_service.logout_admin()
             self.on_logout()
->>>>>>> gui
