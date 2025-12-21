@@ -1,54 +1,83 @@
 # services/payroll_service.py
 
-import os
+from decimal import Decimal
+
+from database.employee_dao import EmployeeDAO
+from database.salary_dao import SalaryDAO
+from database.attendance_dao import AttendanceDAO
+from database.payslip_dao import PayslipDAO
+
+from services.salary_calculator import SalaryCalculator
 from reports.pdf_generator import generate_payslip_pdf
 
 
 class PayrollService:
-    def __init__(self, db=None):
-        self.db = db
+    """
+    Handles end-to-end payroll generation.
+    """
 
-    def generate_payroll(self, salary_month):
-        if not salary_month:
-            raise ValueError("Salary month is required")
+    def __init__(self):
+        self.employee_dao = EmployeeDAO()
+        self.salary_dao = SalaryDAO()
+        self.attendance_dao = AttendanceDAO()
+        self.payslip_dao = PayslipDAO()
 
-        # ---- SAMPLE DATA (replace with DB later) ----
-        emp_id = "EMP001"
-        emp_name = "Rahul Kumar"
+        self.calculator = SalaryCalculator()
 
-        basic = 20000
-        hra = 8000
-        da = 4000
-        pf = 2000
-        tax = 1500
+    # --------------------------------------------------
+    def generate_payroll(
+        self,
+        emp_id: int,
+        month_year: str
+    ) -> int:
+        """
+        Generate payroll and payslip PDF for one employee.
+        Returns payroll_id.
+        """
 
-        gross_salary = basic + hra + da
-        net_salary = gross_salary - (pf + tax)
+        # 1️⃣ Get employee
+        employee = self.employee_dao.get_by_id(emp_id)
+        if not employee:
+            raise ValueError("Employee not found")
 
-        # ---- FILE PATH ----
-        output_dir = os.path.join("reports", "payslip")
-        os.makedirs(output_dir, exist_ok=True)
+        # 2️⃣ Get salary structure
+        structure = None
+        if employee["structure_id"]:
+            structure = self.salary_dao.get_by_id(employee["structure_id"])
 
-        file_name = f"Payslip_{emp_id}_{salary_month}.pdf"
-        file_path = os.path.join(output_dir, file_name)
+        if not structure:
+            raise ValueError("Salary structure not assigned")
 
-        # ---- PDF GENERATION ----
-        generate_payslip_pdf(
-            file_path=file_path,
-            emp_id=emp_id,
-            emp_name=emp_name,
-            salary_month=salary_month,
-            basic_salary=basic,
-            hra=hra,
-            da=da,
-            pf=pf,
-            tax=tax,
-            gross_salary=gross_salary,
-            net_salary=net_salary
+        # 3️⃣ Get attendance (optional)
+        attendance_record = self.attendance_dao.get_by_employee_and_month(
+            emp_id, month_year
         )
 
-        return {
-            "status": "success",
-            "message": f"Payslip generated successfully.\nSaved in reports/payslip",
-            "file_path": file_path
-        }
+        # 4️⃣ Calculate salary
+        salary_data = self.calculator.calculate_salary(
+            basic_salary=Decimal(employee["basic_salary"]),
+            salary_structure=structure,
+            attendance=(
+                None if not attendance_record
+                else attendance_record
+            )
+        )
+
+        # 5️⃣ Save payroll record
+        payroll_id = self.payslip_dao.create_payslip(
+            emp_id=emp_id,
+            month_year=month_year,
+            **salary_data
+        )
+
+        # 6️⃣ Generate PDF
+        pdf_path = generate_payslip_pdf(
+            employee=employee,
+            month_year=month_year,
+            salary_data=salary_data
+        )
+
+        # 7️⃣ Update PDF path
+        self.payslip_dao.update_pdf_path(payroll_id, pdf_path)
+
+        return payroll_id
