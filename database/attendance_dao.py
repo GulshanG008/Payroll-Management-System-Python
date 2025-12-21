@@ -1,7 +1,5 @@
 # database/attendance_dao.py
 
-from typing import Optional, List
-
 from database.connection import (
     get_db_connection,
     get_db_cursor,
@@ -12,11 +10,10 @@ from database.connection import (
 class AttendanceDAO:
     """
     Data Access Object for Attendance table.
-    Handles monthly attendance records for employees.
     """
 
     # --------------------------------------------------
-    # CREATE / INSERT
+    # CREATE / ADD ATTENDANCE
     # --------------------------------------------------
     def add_attendance(
         self,
@@ -49,13 +46,13 @@ class AttendanceDAO:
             release_db_connection(conn)
 
     # --------------------------------------------------
-    # READ BY EMPLOYEE & MONTH
+    # READ BY EMPLOYEE + MONTH
     # --------------------------------------------------
     def get_by_employee_and_month(
         self,
         emp_id: int,
         month_year: str
-    ) -> Optional[dict]:
+    ):
         query = """
             SELECT *
             FROM attendance
@@ -68,26 +65,6 @@ class AttendanceDAO:
         try:
             cursor.execute(query, (emp_id, month_year))
             return cursor.fetchone()
-        finally:
-            release_db_connection(conn)
-
-    # --------------------------------------------------
-    # READ ALL ATTENDANCE FOR EMPLOYEE
-    # --------------------------------------------------
-    def get_all_for_employee(self, emp_id: int) -> List[dict]:
-        query = """
-            SELECT *
-            FROM attendance
-            WHERE emp_id = %s
-            ORDER BY created_at DESC
-        """
-
-        conn = get_db_connection()
-        cursor = get_db_cursor(conn)
-
-        try:
-            cursor.execute(query, (emp_id,))
-            return cursor.fetchall()
         finally:
             release_db_connection(conn)
 
@@ -122,7 +99,7 @@ class AttendanceDAO:
             release_db_connection(conn)
 
     # --------------------------------------------------
-    # DELETE ATTENDANCE RECORD
+    # DELETE ATTENDANCE
     # --------------------------------------------------
     def delete_attendance(self, attendance_id: int) -> bool:
         query = """
@@ -137,5 +114,25 @@ class AttendanceDAO:
             cursor.execute(query, (attendance_id,))
             conn.commit()
             return cursor.rowcount > 0
+        finally:
+            release_db_connection(conn)
+
+    # --------------------------------------------------
+    # LIST ALL ATTENDANCE FOR EMPLOYEE
+    # --------------------------------------------------
+    def get_all_for_employee(self, emp_id: int):
+        query = """
+            SELECT *
+            FROM attendance
+            WHERE emp_id = %s
+            ORDER BY month_year DESC
+        """
+
+        conn = get_db_connection()
+        cursor = get_db_cursor(conn)
+
+        try:
+            cursor.execute(query, (emp_id,))
+            return cursor.fetchall()
         finally:
             release_db_connection(conn)
