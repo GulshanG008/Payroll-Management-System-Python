@@ -12,7 +12,7 @@ class DBConnectionManager:
     def __init__(self):
         # ---- DATABASE CONFIG ----
         self.host = "localhost"
-        self.database = "payroll_db"
+        self.database = "payroll_management"
         self.user = "root"
         self.password = ""
 
