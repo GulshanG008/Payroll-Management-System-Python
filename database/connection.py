@@ -14,7 +14,7 @@ class DBConnectionManager:
         self.host = "localhost"
         self.database = "payroll_db"
         self.user = "root"
-        self.password = "your_mysql_password"  # CHANGE THIS
+        self.password = ""
 
         # ---- POOL CONFIG ----
         self.pool_name = "payroll_pool"
