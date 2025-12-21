@@ -23,9 +23,9 @@ CREATE TABLE salary_structure (
     name VARCHAR(50) NOT NULL,
     base_salary_min DECIMAL(10,2) NOT NULL,
     base_salary_max DECIMAL(10,2) NOT NULL,
-    housing_allowance_pct DECIMAL(5,2) DEFAULT 0.00,
+    housing_allowance_pct DECIMAL(5,4) DEFAULT 0.0000,
+    tax_rate_pct DECIMAL(5,4) DEFAULT 0.0000
     transport_allowance DECIMAL(10,2) DEFAULT 0.00,
-    tax_rate_pct DECIMAL(5,2) DEFAULT 0.00,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     CHECK (base_salary_min <= base_salary_max)
@@ -111,4 +111,8 @@ CREATE TABLE payroll (
 -- ==========================================
 -- Password should be hashed in Python before insert
 INSERT INTO admin (username, password_hash)
-VALUES ('admin', 'admin123_hashed');
+VALUES (
+  'admin',
+  SHA2('admin123', 256)
+);
+
