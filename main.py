@@ -7,29 +7,21 @@ from gui.login_window import LoginWindow
 from gui.dashboard_window import DashboardWindow
 
 
-class PayrollManagementApp:
+class PayrollApp:
     """
-    Main application controller.
-    Handles screen switching and shared services.
+    Entry point for Payroll Management System.
+    Controls window flow between Login and Dashboard.
     """
 
     def __init__(self, root):
         self.root = root
-        self.root.title("Payroll Management System")
-
-        # Shared service instances
         self.auth_service = AuthService()
 
         self.show_login()
 
     # --------------------------------------------------
-    def clear_window(self):
-        for widget in self.root.winfo_children():
-            widget.destroy()
-
-    # --------------------------------------------------
     def show_login(self):
-        self.clear_window()
+        self._clear_root()
         LoginWindow(
             root=self.root,
             auth_service=self.auth_service,
@@ -38,18 +30,23 @@ class PayrollManagementApp:
 
     # --------------------------------------------------
     def show_dashboard(self):
-        self.clear_window()
+        self._clear_root()
         DashboardWindow(
             root=self.root,
             auth_service=self.auth_service,
             on_logout=self.show_login
         )
 
+    # --------------------------------------------------
+    def _clear_root(self):
+        for widget in self.root.winfo_children():
+            widget.destroy()
+
 
 # ------------------------------------------------------
-# Application Entry Point
+# APPLICATION START
 # ------------------------------------------------------
 if __name__ == "__main__":
     root = tk.Tk()
-    app = PayrollManagementApp(root)
+    app = PayrollApp(root)
     root.mainloop()
