@@ -3,12 +3,10 @@
 import tkinter as tk
 from tkinter import messagebox
 
-from services.payroll_service import PayrollService
 from gui.attendance_window import AttendanceWindow
 from gui.salary_window import SalaryWindow
 from gui.payroll_window import PayrollWindow
 from gui.employee_window import EmployeeManagerWindow
-
 
 
 class DashboardWindow:
@@ -20,8 +18,6 @@ class DashboardWindow:
         self.root = root
         self.auth_service = auth_service
         self.on_logout = on_logout
-
-        self.payroll_service = PayrollService()
 
         self.root.title("Payroll Management System - Dashboard")
         self.root.geometry("900x600")
@@ -64,17 +60,18 @@ class DashboardWindow:
 
         # Main content
         content = tk.Frame(self.root, bg="#e8f0fe")
-        content.pack(pady=80)
+        content.pack(pady=70)
 
         button_font = ("Arial", 12)
 
+        # Row 0
         tk.Button(
             content,
             text="Manage Employees",
             width=22,
             height=2,
             font=button_font,
-            state=tk.DISABLED
+            command=self.open_employee_window
         ).grid(row=0, column=0, padx=30, pady=20)
 
         tk.Button(
@@ -86,6 +83,7 @@ class DashboardWindow:
             command=self.generate_payroll
         ).grid(row=0, column=1, padx=30, pady=20)
 
+        # Row 1
         tk.Button(
             content,
             text="Attendance",
@@ -93,7 +91,7 @@ class DashboardWindow:
             height=2,
             font=button_font,
             command=self.open_attendance_window
-        ).grid(row=1, column=0, padx=30, pady=20)   
+        ).grid(row=1, column=0, padx=30, pady=20)
 
         tk.Button(
             content,
@@ -102,15 +100,6 @@ class DashboardWindow:
             height=2,
             font=button_font,
             command=self.open_salary_window
-        ).grid(row=2, column=0, padx=30, pady=20)
-
-        tk.Button(
-            content,
-            text="Reports",
-            width=22,
-            height=2,
-            font=button_font,
-            state=tk.DISABLED
         ).grid(row=1, column=1, padx=30, pady=20)
 
         # Logout
@@ -124,17 +113,19 @@ class DashboardWindow:
             command=self.logout
         ).pack(pady=30)
 
-    def open_attendance_window(self):
-        AttendanceWindow(self.root)
     # --------------------------------------------------
-    def generate_payroll(self):
-        PayrollWindow(self.root)
-
     def open_employee_window(self):
         EmployeeManagerWindow(self.root)
 
+    def open_attendance_window(self):
+        AttendanceWindow(self.root)
+
     def open_salary_window(self):
         SalaryWindow(self.root)
+
+    def generate_payroll(self):
+        PayrollWindow(self.root)
+
     # --------------------------------------------------
     def logout(self):
         if messagebox.askyesno(
