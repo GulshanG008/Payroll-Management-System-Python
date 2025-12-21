@@ -6,8 +6,8 @@ Modify these values according to your MySQL setup.
 """
 
 DB_HOST = "localhost"
-DB_NAME = "payroll_db"
+DB_NAME = "payroll_management"
 DB_USER = "root"
-DB_PASSWORD = "your_mysql_password"  # CHANGE THIS
+DB_PASSWORD = ""
 DB_POOL_NAME = "payroll_pool"
 DB_POOL_SIZE = 5
