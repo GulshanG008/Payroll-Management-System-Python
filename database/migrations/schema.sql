@@ -23,9 +23,11 @@ CREATE TABLE salary_structure (
     name VARCHAR(50) NOT NULL,
     base_salary_min DECIMAL(10,2) NOT NULL,
     base_salary_max DECIMAL(10,2) NOT NULL,
+
     housing_allowance_pct DECIMAL(5,4) DEFAULT 0.0000,
-    tax_rate_pct DECIMAL(5,4) DEFAULT 0.0000
+    tax_rate_pct DECIMAL(5,4) DEFAULT 0.0000,
     transport_allowance DECIMAL(10,2) DEFAULT 0.00,
+
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     CHECK (base_salary_min <= base_salary_max)
@@ -61,7 +63,7 @@ CREATE TABLE employee (
 CREATE TABLE attendance (
     attendance_id INT AUTO_INCREMENT PRIMARY KEY,
     emp_id INT NOT NULL,
-    month_year VARCHAR(20) NOT NULL,   -- e.g. March-2025
+    month_year VARCHAR(20) NOT NULL,
     days_worked INT NOT NULL,
     days_absent INT NOT NULL,
 
@@ -107,12 +109,10 @@ CREATE TABLE payroll (
 );
 
 -- ==========================================
--- 6. SAMPLE ADMIN USER (OPTIONAL)
+-- 6. SAMPLE ADMIN USER
 -- ==========================================
--- Password should be hashed in Python before insert
 INSERT INTO admin (username, password_hash)
 VALUES (
-  'admin',
-  SHA2('admin123', 256)
+    'admin',
+    SHA2('admin123', 256)
 );
-
