@@ -69,7 +69,7 @@ class DashboardWindow:
             width=22,
             height=2,
             font=button_font,
-            state=tk.DISABLED   # can be enabled later
+            state=tk.DISABLED   # enable later
         ).grid(row=0, column=0, padx=20, pady=15)
 
         tk.Button(
