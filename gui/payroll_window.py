@@ -1,76 +1,86 @@
 # gui/payroll_window.py
 
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import ttk, messagebox
+
+from database.employee_dao import EmployeeDAO
+from services.payroll_service import PayrollService
 
 
 class PayrollWindow:
-    def __init__(self, parent, payroll_service):
-        self.parent = parent
-        self.payroll_service = payroll_service
+    """
+    GUI window to generate payroll and payslip PDF.
+    """
 
+    def __init__(self, parent):
         self.window = tk.Toplevel(parent)
         self.window.title("Generate Payroll")
-        self.window.geometry("600x400")
-        self.window.configure(bg="#f4f6f8")
+        self.window.geometry("500x400")
+        self.window.resizable(False, False)
 
-        self.window.transient(parent)
-        self.window.grab_set()
+        self.employee_dao = EmployeeDAO()
+        self.payroll_service = PayrollService()
 
-        self._center_window(600, 400)
         self._create_widgets()
+        self.load_employees()
 
-    def _center_window(self, width, height):
-        sw = self.window.winfo_screenwidth()
-        sh = self.window.winfo_screenheight()
-        x = (sw // 2) - (width // 2)
-        y = (sh // 2) - (height // 2)
-        self.window.geometry(f"{width}x{height}+{x}+{y}")
-
+    # --------------------------------------------------
     def _create_widgets(self):
         tk.Label(
             self.window,
-            text="Payroll Generation",
-            font=("Arial", 18, "bold"),
-            bg="#f4f6f8",
-            fg="#003366"
-        ).pack(pady=30)
+            text="Generate Payroll",
+            font=("Arial", 16, "bold")
+        ).pack(pady=15)
 
-        form = tk.Frame(self.window, bg="#f4f6f8")
+        form = tk.Frame(self.window)
         form.pack(pady=20)
 
-        tk.Label(
-            form, text="Salary Month:",
-            font=("Arial", 12),
-            bg="#f4f6f8"
-        ).grid(row=0, column=0, padx=10, pady=10, sticky="e")
+        # Employee
+        tk.Label(form, text="Employee").grid(row=0, column=0, pady=10, sticky="e")
+        self.employee_combo = ttk.Combobox(form, width=30, state="readonly")
+        self.employee_combo.grid(row=0, column=1, pady=10)
 
-        self.month_entry = tk.Entry(form, width=25)
-        self.month_entry.grid(row=0, column=1, padx=10, pady=10)
+        # Month-Year
+        tk.Label(form, text="Month-Year").grid(row=1, column=0, pady=10, sticky="e")
+        self.month_entry = tk.Entry(form, width=33)
+        self.month_entry.grid(row=1, column=1, pady=10)
+        self.month_entry.insert(0, "March-2025")
 
         tk.Button(
             self.window,
-            text="Generate Payslip (PDF)",
-            width=25,
-            font=("Arial", 12, "bold"),
-            bg="#4CAF50",
-            fg="white",
+            text="Generate Payslip",
+            width=20,
             command=self.generate_payroll
-        ).pack(pady=20)
+        ).pack(pady=25)
 
-        tk.Button(
-            self.window,
-            text="Close",
-            width=15,
-            font=("Arial", 11),
-            command=self.window.destroy
-        ).pack(pady=10)
+    # --------------------------------------------------
+    def load_employees(self):
+        self.employees = self.employee_dao.get_all_active()
+        display_list = [
+            f"{e['emp_id']} - {e['full_name']}"
+            for e in self.employees
+        ]
+        self.employee_combo["values"] = display_list
 
+    # --------------------------------------------------
     def generate_payroll(self):
-        salary_month = self.month_entry.get().strip()
+        if not self.employee_combo.get():
+            messagebox.showerror("Error", "Please select an employee")
+            return
 
         try:
-            result = self.payroll_service.generate_payroll(salary_month)
-            messagebox.showinfo("Success", result["message"])
+            emp_id = int(self.employee_combo.get().split("-")[0].strip())
+            month_year = self.month_entry.get().strip()
+
+            payroll_id = self.payroll_service.generate_payroll(
+                emp_id=emp_id,
+                month_year=month_year
+            )
+
+            messagebox.showinfo(
+                "Success",
+                f"Payroll generated successfully (ID: {payroll_id})"
+            )
+
         except Exception as e:
             messagebox.showerror("Error", str(e))
