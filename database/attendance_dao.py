@@ -136,3 +136,4 @@ class AttendanceDAO:
             return cursor.fetchall()
         finally:
             release_db_connection(conn)
+

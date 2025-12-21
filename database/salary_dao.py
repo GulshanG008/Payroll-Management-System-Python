@@ -50,7 +50,6 @@ class SalaryDAO:
             )
             conn.commit()
             return cursor.lastrowid
-
         finally:
             release_db_connection(conn)
 
@@ -70,10 +69,7 @@ class SalaryDAO:
         try:
             cursor.execute(query, (structure_id,))
             record = cursor.fetchone()
-            return (
-                SalaryStructure.from_db_record(record)
-                if record else None
-            )
+            return SalaryStructure.from_db_record(record) if record else None
         finally:
             release_db_connection(conn)
 
@@ -93,10 +89,7 @@ class SalaryDAO:
         try:
             cursor.execute(query)
             records = cursor.fetchall()
-            return [
-                SalaryStructure.from_db_record(r)
-                for r in records
-            ]
+            return [SalaryStructure.from_db_record(r) for r in records]
         finally:
             release_db_connection(conn)
 
@@ -104,8 +97,7 @@ class SalaryDAO:
     # FIND STRUCTURE FOR BASIC SALARY
     # --------------------------------------------------
     def get_structure_for_salary(
-        self,
-        basic_salary: Decimal
+        self, basic_salary: Decimal
     ) -> Optional[SalaryStructure]:
         """
         Finds salary structure where:
@@ -125,10 +117,7 @@ class SalaryDAO:
         try:
             cursor.execute(query, (basic_salary,))
             record = cursor.fetchone()
-            return (
-                SalaryStructure.from_db_record(record)
-                if record else None
-            )
+            return SalaryStructure.from_db_record(record) if record else None
         finally:
             release_db_connection(conn)
 
@@ -166,7 +155,6 @@ class SalaryDAO:
             )
             conn.commit()
             return cursor.rowcount > 0
-
         finally:
             release_db_connection(conn)
 
@@ -186,6 +174,5 @@ class SalaryDAO:
             cursor.execute(query, (structure_id,))
             conn.commit()
             return cursor.rowcount > 0
-
         finally:
             release_db_connection(conn)

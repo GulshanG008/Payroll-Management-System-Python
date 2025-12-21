@@ -124,3 +124,4 @@ class PayslipDAO:
             return cursor.fetchall()
         finally:
             release_db_connection(conn)
+

@@ -35,7 +35,7 @@ class AdminDAO:
             release_db_connection(conn)
 
     # --------------------------------------------------
-    # AUTHENTICATE ADMIN (LOGIN)
+    # GET ADMIN BY USERNAME
     # --------------------------------------------------
     def get_by_username(self, username: str) -> Optional[dict]:
         query = """

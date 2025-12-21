@@ -22,7 +22,6 @@ class AuthService:
             return False
 
         admin = self.admin_dao.get_by_username(username)
-
         if not admin:
             return False
 
