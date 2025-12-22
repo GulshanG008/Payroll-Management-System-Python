@@ -24,6 +24,7 @@ class LoginWindow:
         y = (sh // 2) - (height // 2)
         self.root.geometry(f"{width}x{height}+{x}+{y}")
 
+    ENTRY_WIDTH = 28
     title_font = ("Segoe UI", 20, "bold")
     label_font = ("Segoe UI", 11, "bold")
     entry_font = ("Segoe UI", 11, "bold")
@@ -34,13 +35,17 @@ class LoginWindow:
 
         form_frame = tk.Frame(self.root)
         form_frame.pack(pady=10)
+        form_frame.grid_columnconfigure(1, minsize=260)
 
         # Username
         tk.Label(form_frame, text="Username:", font=self.label_font).grid(
             row=0, column=0, padx=10, pady=10, sticky="e"
         )
 
-        self.username_entry = tk.Entry(form_frame, width=25, font=self.entry_font)
+        self.username_entry = tk.Entry(
+            form_frame, width=self.ENTRY_WIDTH, font=self.ENTRY_FONT
+        )
+        self.username_entry.configure(relief="solid", bd=1)
         self.username_entry.grid(row=0, column=1, pady=10)
 
         # Password
@@ -48,7 +53,10 @@ class LoginWindow:
             row=1, column=0, padx=10, pady=10, sticky="e"
         )
 
-        self.password_entry = tk.Entry(form_frame, width=25, show="*")
+        self.password_entry = tk.Entry(
+            form_frame, width=self.ENTRY_WIDTH, show="*", font=self.ENTRY_FONT
+        )
+        self.password_entry.configure(relief="solid", bd=1)
         self.password_entry.grid(row=1, column=1, pady=10)
 
         # Login Button
