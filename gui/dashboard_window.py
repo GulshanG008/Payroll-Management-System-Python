@@ -4,16 +4,12 @@ import tkinter as tk
 from tkinter import messagebox
 
 from gui.attendance_window import AttendanceWindow
-from gui.salary_window import SalaryWindow
-from gui.payroll_window import PayrollWindow
 from gui.employee_window import EmployeeManagerWindow
+from gui.payroll_window import PayrollWindow
+from gui.salary_window import SalaryWindow
 
 
 class DashboardWindow:
-    """
-    Main dashboard after successful admin login.
-    """
-
     def __init__(self, root, auth_service, on_logout):
         self.root = root
         self.auth_service = auth_service
@@ -26,7 +22,6 @@ class DashboardWindow:
         self._center_window(900, 600)
         self._create_widgets()
 
-    # --------------------------------------------------
     def _center_window(self, width, height):
         sw = self.root.winfo_screenwidth()
         sh = self.root.winfo_screenheight()
@@ -34,7 +29,6 @@ class DashboardWindow:
         y = (sh // 2) - (height // 2)
         self.root.geometry(f"{width}x{height}+{x}+{y}")
 
-    # --------------------------------------------------
     def _create_widgets(self):
         admin = self.auth_service.current_user
 
@@ -47,7 +41,7 @@ class DashboardWindow:
             text="Payroll Management System",
             font=("Arial", 18, "bold"),
             bg="#003366",
-            fg="white"
+            fg="white",
         ).pack(side="left", padx=20)
 
         tk.Label(
@@ -55,7 +49,7 @@ class DashboardWindow:
             text=f"Logged in as: {admin['username']}",
             font=("Arial", 11),
             bg="#003366",
-            fg="white"
+            fg="white",
         ).pack(side="right", padx=20)
 
         # Main content
@@ -71,7 +65,7 @@ class DashboardWindow:
             width=22,
             height=2,
             font=button_font,
-            command=self.open_employee_window
+            command=self.open_employee_window,
         ).grid(row=0, column=0, padx=30, pady=20)
 
         tk.Button(
@@ -80,7 +74,7 @@ class DashboardWindow:
             width=22,
             height=2,
             font=button_font,
-            command=self.generate_payroll
+            command=self.generate_payroll,
         ).grid(row=0, column=1, padx=30, pady=20)
 
         # Row 1
@@ -90,7 +84,7 @@ class DashboardWindow:
             width=22,
             height=2,
             font=button_font,
-            command=self.open_attendance_window
+            command=self.open_attendance_window,
         ).grid(row=1, column=0, padx=30, pady=20)
 
         tk.Button(
@@ -99,7 +93,7 @@ class DashboardWindow:
             width=22,
             height=2,
             font=button_font,
-            command=self.open_salary_window
+            command=self.open_salary_window,
         ).grid(row=1, column=1, padx=30, pady=20)
 
         # Logout
@@ -110,10 +104,9 @@ class DashboardWindow:
             font=("Arial", 11, "bold"),
             bg="#ff6666",
             fg="white",
-            command=self.logout
+            command=self.logout,
         ).pack(pady=30)
 
-    # --------------------------------------------------
     def open_employee_window(self):
         EmployeeManagerWindow(self.root)
 
@@ -126,11 +119,7 @@ class DashboardWindow:
     def generate_payroll(self):
         PayrollWindow(self.root)
 
-    # --------------------------------------------------
     def logout(self):
-        if messagebox.askyesno(
-            "Confirm Logout",
-            "Are you sure you want to logout?"
-        ):
+        if messagebox.askyesno("Confirm Logout", "Are you sure you want to logout?"):
             self.auth_service.logout_admin()
             self.on_logout()
