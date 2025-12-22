@@ -1,5 +1,3 @@
-# gui/dashboard_window.py
-
 import tkinter as tk
 from tkinter import messagebox
 
@@ -10,6 +8,11 @@ from gui.salary_window import SalaryWindow
 
 
 class DashboardWindow:
+    TITLE_FONT = ("Segoe UI", 18, "bold")
+    HEADER_FONT = ("Segoe UI", 11)
+    BUTTON_FONT = ("Segoe UI", 12)
+    LOGOUT_FONT = ("Segoe UI", 11, "bold")
+
     def __init__(self, root, auth_service, on_logout):
         self.root = root
         self.auth_service = auth_service
@@ -32,14 +35,13 @@ class DashboardWindow:
     def _create_widgets(self):
         admin = self.auth_service.current_user
 
-        # Header
         header = tk.Frame(self.root, bg="#003366", height=60)
         header.pack(fill="x")
 
         tk.Label(
             header,
             text="Payroll Management System",
-            font=("Arial", 18, "bold"),
+            font=self.TITLE_FONT,
             bg="#003366",
             fg="white",
         ).pack(side="left", padx=20)
@@ -47,65 +49,72 @@ class DashboardWindow:
         tk.Label(
             header,
             text=f"Logged in as: {admin['username']}",
-            font=("Arial", 11),
+            font=self.HEADER_FONT,
             bg="#003366",
             fg="white",
         ).pack(side="right", padx=20)
 
-        # Main content
-        content = tk.Frame(self.root, bg="#e8f0fe")
-        content.pack(pady=70)
+        card = tk.Frame(self.root, bg="white", bd=1, relief="solid")
+        card.pack(pady=60, padx=80)
 
-        button_font = ("Arial", 12)
+        button_font = self.BUTTON_FONT
 
         # Row 0
         tk.Button(
-            content,
+            card,
             text="Manage Employees",
             width=22,
             height=2,
             font=button_font,
+            relief="raised",
+            bd=2,
             command=self.open_employee_window,
-        ).grid(row=0, column=0, padx=30, pady=20)
+        ).grid(row=0, column=0, padx=40, pady=25)
 
         tk.Button(
-            content,
+            card,
             text="Generate Payroll",
             width=22,
             height=2,
             font=button_font,
+            relief="raised",
+            bd=2,
             command=self.generate_payroll,
-        ).grid(row=0, column=1, padx=30, pady=20)
+        ).grid(row=0, column=1, padx=40, pady=25)
 
         # Row 1
         tk.Button(
-            content,
+            card,
             text="Attendance",
             width=22,
             height=2,
             font=button_font,
+            relief="raised",
+            bd=2,
             command=self.open_attendance_window,
-        ).grid(row=1, column=0, padx=30, pady=20)
+        ).grid(row=1, column=0, padx=40, pady=25)
 
         tk.Button(
-            content,
+            card,
             text="Salary Structure",
             width=22,
             height=2,
             font=button_font,
+            relief="raised",
+            bd=2,
             command=self.open_salary_window,
-        ).grid(row=1, column=1, padx=30, pady=20)
+        ).grid(row=1, column=1, padx=40, pady=25)
 
-        # Logout
         tk.Button(
             self.root,
             text="Logout",
             width=15,
-            font=("Arial", 11, "bold"),
+            font=self.LOGOUT_FONT,
             bg="#ff6666",
             fg="white",
+            relief="flat",
             command=self.logout,
-        ).pack(pady=30)
+        ).pack(pady=(10, 30))
 
     def open_employee_window(self):
         EmployeeManagerWindow(self.root)
