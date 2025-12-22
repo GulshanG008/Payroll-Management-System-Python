@@ -43,7 +43,7 @@ class LoginWindow:
         )
 
         self.username_entry = tk.Entry(
-            form_frame, width=self.ENTRY_WIDTH, font=self.ENTRY_FONT
+            form_frame, width=self.ENTRY_WIDTH, font=self.entry_font
         )
         self.username_entry.configure(relief="solid", bd=1)
         self.username_entry.grid(row=0, column=1, pady=10)
@@ -54,7 +54,7 @@ class LoginWindow:
         )
 
         self.password_entry = tk.Entry(
-            form_frame, width=self.ENTRY_WIDTH, show="*", font=self.ENTRY_FONT
+            form_frame, width=self.ENTRY_WIDTH, show="*", font=self.entry_font
         )
         self.password_entry.configure(relief="solid", bd=1)
         self.password_entry.grid(row=1, column=1, pady=10)
