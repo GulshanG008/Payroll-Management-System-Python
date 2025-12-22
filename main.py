@@ -11,7 +11,6 @@ class PayrollApp:
     def __init__(self, root):
         self.root = root
         self.auth_service = AuthService()
-
         self.show_login()
 
     def show_login(self):
