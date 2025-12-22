@@ -30,7 +30,7 @@ class LoginWindow:
     button_font = ("Segoe UI", 11, "bold")
 
     def _create_widgets(self):
-        tk.Label(self.root, text="Admin Login", font=self.title_font).pack(pady=20)
+        tk.Label(self.root, text="Admin Login", font=self.title_font).pack(pady=25)
 
         form_frame = tk.Frame(self.root)
         form_frame.pack(pady=10)
@@ -58,7 +58,7 @@ class LoginWindow:
             width=15,
             font=self.button_font,
             command=self.login,
-        ).pack(pady=20)
+        ).pack(pady=25)
 
     def login(self):
         username = self.username_entry.get().strip()
