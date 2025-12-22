@@ -5,10 +5,6 @@ from tkinter import messagebox
 
 
 class LoginWindow:
-    """
-    Login window for Payroll Management System.
-    """
-
     def __init__(self, root, auth_service, on_login_success):
         self.root = root
         self.auth_service = auth_service
@@ -21,7 +17,6 @@ class LoginWindow:
         self._center_window(400, 300)
         self._create_widgets()
 
-    # --------------------------------------------------
     def _center_window(self, width, height):
         sw = self.root.winfo_screenwidth()
         sh = self.root.winfo_screenheight()
@@ -29,33 +24,26 @@ class LoginWindow:
         y = (sh // 2) - (height // 2)
         self.root.geometry(f"{width}x{height}+{x}+{y}")
 
-    # --------------------------------------------------
     def _create_widgets(self):
-        tk.Label(
-            self.root,
-            text="Admin Login",
-            font=("Arial", 18, "bold")
-        ).pack(pady=20)
+        tk.Label(self.root, text="Admin Login", font=("Arial", 18, "bold")).pack(
+            pady=20
+        )
 
         form_frame = tk.Frame(self.root)
         form_frame.pack(pady=10)
 
         # Username
-        tk.Label(
-            form_frame,
-            text="Username:",
-            font=("Arial", 11)
-        ).grid(row=0, column=0, padx=10, pady=10, sticky="e")
+        tk.Label(form_frame, text="Username:", font=("Arial", 11)).grid(
+            row=0, column=0, padx=10, pady=10, sticky="e"
+        )
 
         self.username_entry = tk.Entry(form_frame, width=25)
         self.username_entry.grid(row=0, column=1, pady=10)
 
         # Password
-        tk.Label(
-            form_frame,
-            text="Password:",
-            font=("Arial", 11)
-        ).grid(row=1, column=0, padx=10, pady=10, sticky="e")
+        tk.Label(form_frame, text="Password:", font=("Arial", 11)).grid(
+            row=1, column=0, padx=10, pady=10, sticky="e"
+        )
 
         self.password_entry = tk.Entry(form_frame, width=25, show="*")
         self.password_entry.grid(row=1, column=1, pady=10)
@@ -66,29 +54,21 @@ class LoginWindow:
             text="Login",
             width=15,
             font=("Arial", 11, "bold"),
-            command=self.login
+            command=self.login,
         ).pack(pady=20)
 
-    # --------------------------------------------------
     def login(self):
         username = self.username_entry.get().strip()
         password = self.password_entry.get().strip()
 
         if not username or not password:
             messagebox.showerror(
-                "Login Error",
-                "Please enter both username and password."
+                "Login Error", "Please enter both username and password."
             )
             return
 
         if self.auth_service.login_admin(username, password):
-            messagebox.showinfo(
-                "Login Successful",
-                "Welcome to the system!"
-            )
+            messagebox.showinfo("Login Successful", "Welcome to the system!")
             self.on_login_success()
         else:
-            messagebox.showerror(
-                "Login Failed",
-                "Invalid username or password."
-            )
+            messagebox.showerror("Login Failed", "Invalid username or password.")
