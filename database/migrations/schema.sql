@@ -112,11 +112,4 @@ CREATE TABLE payroll (
 -- 6. SAMPLE ADMIN USER
 -- ==========================================
 INSERT INTO admin (username, password_hash)
-<<<<<<< HEAD
-VALUES (
-    'admin',
-    SHA2('admin123', 256)
-);
-=======
 VALUES ('admin', SHA2('admin123', 256));
->>>>>>> backend
