@@ -1,17 +1,13 @@
 # gui/attendance_window.py
 
 import tkinter as tk
-from tkinter import ttk, messagebox
+from tkinter import messagebox, ttk
 
 from database.employee_dao import EmployeeDAO
 from services.attendance_service import AttendanceService
 
 
 class AttendanceWindow:
-    """
-    GUI window to manage employee attendance.
-    """
-
     def __init__(self, parent):
         self.window = tk.Toplevel(parent)
         self.window.title("Employee Attendance")
@@ -24,12 +20,9 @@ class AttendanceWindow:
         self._create_widgets()
         self.load_employees()
 
-    # --------------------------------------------------
     def _create_widgets(self):
         tk.Label(
-            self.window,
-            text="Employee Attendance",
-            font=("Arial", 16, "bold")
+            self.window, text="Employee Attendance", font=("Arial", 16, "bold")
         ).pack(pady=15)
 
         form = tk.Frame(self.window)
@@ -61,50 +54,31 @@ class AttendanceWindow:
         btn_frame.pack(pady=15)
 
         tk.Button(
-            btn_frame,
-            text="Save Attendance",
-            width=18,
-            command=self.save_attendance
+            btn_frame, text="Save Attendance", width=18, command=self.save_attendance
         ).pack(side="left", padx=10)
 
-        tk.Button(
-            btn_frame,
-            text="Clear",
-            width=18,
-            command=self.clear_form
-        ).pack(side="left", padx=10)
+        tk.Button(btn_frame, text="Clear", width=18, command=self.clear_form).pack(
+            side="left", padx=10
+        )
 
-        # ---------------- TABLE ----------------
         table_frame = tk.Frame(self.window)
         table_frame.pack(fill="both", expand=True, padx=10, pady=10)
 
-        columns = (
-            "Employee",
-            "Month",
-            "Worked",
-            "Absent"
-        )
+        columns = ("Employee", "Month", "Worked", "Absent")
 
-        self.tree = ttk.Treeview(
-            table_frame,
-            columns=columns,
-            show="headings"
-        )
+        self.tree = ttk.Treeview(table_frame, columns=columns, show="headings")
         self.tree.pack(fill="both", expand=True)
 
         for col in columns:
             self.tree.heading(col, text=col)
             self.tree.column(col, anchor="center")
 
-    # --------------------------------------------------
     def load_employees(self):
         self.employees = self.employee_dao.get_all_active()
         self.employee_combo["values"] = [
-            f"{e['emp_id']} - {e['full_name']}"
-            for e in self.employees
+            f"{e['emp_id']} - {e['full_name']}" for e in self.employees
         ]
 
-    # --------------------------------------------------
     def save_attendance(self):
         if not self.employee_combo.get():
             messagebox.showerror("Error", "Please select an employee")
@@ -120,7 +94,7 @@ class AttendanceWindow:
                 emp_id=emp_id,
                 month_year=month_year,
                 days_worked=days_worked,
-                days_absent=days_absent
+                days_absent=days_absent,
             )
 
             self.tree.insert(
@@ -130,8 +104,8 @@ class AttendanceWindow:
                     self.employee_combo.get(),
                     month_year,
                     days_worked,
-                    days_absent
-                )
+                    days_absent,
+                ),
             )
 
             messagebox.showinfo("Success", "Attendance saved successfully")
@@ -140,7 +114,6 @@ class AttendanceWindow:
         except Exception as e:
             messagebox.showerror("Error", str(e))
 
-    # --------------------------------------------------
     def clear_form(self):
         self.month_entry.delete(0, tk.END)
         self.days_worked_entry.delete(0, tk.END)
