@@ -1,36 +1,23 @@
 # services/salary_calculator.py
 
-from decimal import Decimal, ROUND_HALF_UP
+from decimal import ROUND_HALF_UP, Decimal
 from typing import Optional
 
-from models.salary_structure import SalaryStructure
 from models.attendance import Attendance
+from models.salary_structure import SalaryStructure
 
 
 class SalaryCalculator:
-    """
-    Handles salary calculation logic.
-    No database or GUI code here.
-    """
-
     def __init__(self, working_days_in_month: int = 30):
         self.working_days_in_month = working_days_in_month
 
-    # --------------------------------------------------
     # CORE SALARY CALCULATION
-    # --------------------------------------------------
     def calculate_salary(
         self,
         basic_salary: Decimal,
         salary_structure: SalaryStructure,
-        attendance: Optional[Attendance] = None
+        attendance: Optional[Attendance] = None,
     ) -> dict:
-        """
-        Calculate salary using salary structure and (optional) attendance.
-
-        Returns a dictionary with full salary breakup.
-        """
-
         if basic_salary <= 0:
             raise ValueError("Basic salary must be greater than zero")
 
@@ -41,9 +28,7 @@ class SalaryCalculator:
             total_days = attendance.days_worked + attendance.days_absent
             if total_days > 0:
                 payable_basic = (
-                    basic_salary
-                    * Decimal(attendance.days_worked)
-                    / Decimal(total_days)
+                    basic_salary * Decimal(attendance.days_worked) / Decimal(total_days)
                 )
 
         # ---------- Earnings ----------
@@ -67,8 +52,6 @@ class SalaryCalculator:
             "net_salary": self._round(net_salary),
         }
 
-    # --------------------------------------------------
     # UTILITY
-    # --------------------------------------------------
     def _round(self, value: Decimal) -> Decimal:
         return value.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
