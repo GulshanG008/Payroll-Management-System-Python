@@ -1,17 +1,13 @@
 # gui/payroll_window.py
 
 import tkinter as tk
-from tkinter import ttk, messagebox
+from tkinter import messagebox, ttk
 
 from database.employee_dao import EmployeeDAO
 from services.payroll_service import PayrollService
 
 
 class PayrollWindow:
-    """
-    GUI window to generate payroll and payslip PDF.
-    """
-
     def __init__(self, parent):
         self.window = tk.Toplevel(parent)
         self.window.title("Generate Payroll")
@@ -24,13 +20,10 @@ class PayrollWindow:
         self._create_widgets()
         self.load_employees()
 
-    # --------------------------------------------------
     def _create_widgets(self):
-        tk.Label(
-            self.window,
-            text="Generate Payroll",
-            font=("Arial", 16, "bold")
-        ).pack(pady=15)
+        tk.Label(self.window, text="Generate Payroll", font=("Arial", 16, "bold")).pack(
+            pady=15
+        )
 
         form = tk.Frame(self.window)
         form.pack(pady=20)
@@ -50,19 +43,14 @@ class PayrollWindow:
             self.window,
             text="Generate Payslip",
             width=20,
-            command=self.generate_payroll
+            command=self.generate_payroll,
         ).pack(pady=25)
 
-    # --------------------------------------------------
     def load_employees(self):
         self.employees = self.employee_dao.get_all_active()
-        display_list = [
-            f"{e['emp_id']} - {e['full_name']}"
-            for e in self.employees
-        ]
+        display_list = [f"{e['emp_id']} - {e['full_name']}" for e in self.employees]
         self.employee_combo["values"] = display_list
 
-    # --------------------------------------------------
     def generate_payroll(self):
         if not self.employee_combo.get():
             messagebox.showerror("Error", "Please select an employee")
@@ -73,14 +61,14 @@ class PayrollWindow:
             month_year = self.month_entry.get().strip()
 
             payroll_id = self.payroll_service.generate_payroll(
-                emp_id=emp_id,
-                month_year=month_year
+                emp_id=emp_id, month_year=month_year
             )
 
             messagebox.showinfo(
-                "Success",
-                f"Payroll generated successfully (ID: {payroll_id})"
+                "Success", f"Payroll generated successfully (ID: {payroll_id})"
             )
 
+        except Exception as e:
+            messagebox.showerror("Error", str(e))
         except Exception as e:
             messagebox.showerror("Error", str(e))
