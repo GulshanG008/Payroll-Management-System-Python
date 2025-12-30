@@ -1,18 +1,14 @@
 # gui/salary_window.py
 
 import tkinter as tk
-from tkinter import ttk, messagebox
 from decimal import Decimal
+from tkinter import messagebox, ttk
 
 from database.salary_dao import SalaryDAO
 from models.salary_structure import SalaryStructure
 
 
 class SalaryWindow:
-    """
-    GUI window to manage Salary Structures (Pay Grades).
-    """
-
     def __init__(self, parent):
         self.window = tk.Toplevel(parent)
         self.window.title("Salary Structure Management")
@@ -24,12 +20,9 @@ class SalaryWindow:
         self._create_widgets()
         self.load_structures()
 
-    # --------------------------------------------------
     def _create_widgets(self):
         tk.Label(
-            self.window,
-            text="Salary Structure Management",
-            font=("Arial", 18, "bold")
+            self.window, text="Salary Structure Management", font=("Arial", 18, "bold")
         ).pack(pady=10)
 
         main = tk.Frame(self.window)
@@ -45,7 +38,7 @@ class SalaryWindow:
             "Base Salary Max",
             "HRA (%)",
             "Transport Allowance",
-            "Tax (%)"
+            "Tax (%)",
         ]
 
         self.entries = {}
@@ -59,46 +52,25 @@ class SalaryWindow:
         btn_frame = tk.Frame(form)
         btn_frame.grid(row=len(labels), column=0, columnspan=2, pady=15)
 
-        tk.Button(
-            btn_frame,
-            text="Add",
-            width=12,
-            command=self.add_structure
-        ).pack(side="left", padx=5)
+        tk.Button(btn_frame, text="Add", width=12, command=self.add_structure).pack(
+            side="left", padx=5
+        )
 
         tk.Button(
-            btn_frame,
-            text="Update",
-            width=12,
-            command=self.update_structure
+            btn_frame, text="Update", width=12, command=self.update_structure
         ).pack(side="left", padx=5)
 
-        tk.Button(
-            btn_frame,
-            text="Clear",
-            width=12,
-            command=self.clear_form
-        ).pack(side="left", padx=5)
+        tk.Button(btn_frame, text="Clear", width=12, command=self.clear_form).pack(
+            side="left", padx=5
+        )
 
         # ---------------- TABLE ----------------
         table_frame = tk.Frame(main)
         table_frame.pack(side="right", fill="both", expand=True)
 
-        columns = (
-            "ID",
-            "Name",
-            "Min",
-            "Max",
-            "HRA",
-            "Transport",
-            "Tax"
-        )
+        columns = ("ID", "Name", "Min", "Max", "HRA", "Transport", "Tax")
 
-        self.tree = ttk.Treeview(
-            table_frame,
-            columns=columns,
-            show="headings"
-        )
+        self.tree = ttk.Treeview(table_frame, columns=columns, show="headings")
         self.tree.pack(fill="both", expand=True)
 
         for col in columns:
@@ -107,7 +79,6 @@ class SalaryWindow:
 
         self.tree.bind("<<TreeviewSelect>>", self.on_select)
 
-    # --------------------------------------------------
     def load_structures(self):
         self.tree.delete(*self.tree.get_children())
 
@@ -123,11 +94,10 @@ class SalaryWindow:
                     s.base_salary_max,
                     float(s.housing_allowance_pct * 100),
                     s.transport_allowance,
-                    float(s.tax_rate_pct * 100)
-                )
+                    float(s.tax_rate_pct * 100),
+                ),
             )
 
-    # --------------------------------------------------
     def add_structure(self):
         try:
             structure = self._read_form(structure_id=None)
@@ -138,7 +108,6 @@ class SalaryWindow:
         except Exception as e:
             messagebox.showerror("Error", str(e))
 
-    # --------------------------------------------------
     def update_structure(self):
         selected = self.tree.focus()
         if not selected:
@@ -155,7 +124,6 @@ class SalaryWindow:
         except Exception as e:
             messagebox.showerror("Error", str(e))
 
-    # --------------------------------------------------
     def on_select(self, event):
         selected = self.tree.focus()
         if not selected:
@@ -173,12 +141,10 @@ class SalaryWindow:
         self.entries[keys[4]].insert(0, values[5])
         self.entries[keys[5]].insert(0, values[6])
 
-    # --------------------------------------------------
     def clear_form(self):
         for entry in self.entries.values():
             entry.delete(0, tk.END)
 
-    # --------------------------------------------------
     def _read_form(self, structure_id):
         name = self.entries["Name"].get().strip()
         min_salary = Decimal(self.entries["Base Salary Min"].get())
@@ -194,5 +160,5 @@ class SalaryWindow:
             base_salary_max=max_salary,
             housing_allowance_pct=hra_pct,
             transport_allowance=transport,
-            tax_rate_pct=tax_pct
+            tax_rate_pct=tax_pct,
         )
