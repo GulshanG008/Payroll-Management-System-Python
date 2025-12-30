@@ -1,18 +1,14 @@
 # gui/employee_window.py
 
 import tkinter as tk
-from tkinter import ttk, messagebox
-from decimal import Decimal
 from datetime import date
+from decimal import Decimal
+from tkinter import messagebox, ttk
 
 from database.employee_dao import EmployeeDAO
 
 
 class EmployeeManagerWindow:
-    """
-    GUI window to manage employees (Add / View / Deactivate).
-    """
-
     def __init__(self, root):
         self.root = tk.Toplevel(root)
         self.root.title("Employee Management")
@@ -24,12 +20,9 @@ class EmployeeManagerWindow:
         self._create_widgets()
         self.load_employees()
 
-    # --------------------------------------------------
     def _create_widgets(self):
         tk.Label(
-            self.root,
-            text="Employee Management",
-            font=("Arial", 18, "bold")
+            self.root, text="Employee Management", font=("Arial", 18, "bold")
         ).pack(pady=10)
 
         main_frame = tk.Frame(self.root)
@@ -45,7 +38,7 @@ class EmployeeManagerWindow:
             "Gender",
             "Contact No",
             "Email",
-            "Basic Salary"
+            "Basic Salary",
         ]
 
         self.entries = {}
@@ -56,32 +49,17 @@ class EmployeeManagerWindow:
             entry.grid(row=i, column=1, pady=6)
             self.entries[label] = entry
 
-        tk.Button(
-            form,
-            text="Add Employee",
-            width=20,
-            command=self.add_employee
-        ).grid(row=len(labels), column=0, columnspan=2, pady=15)
+        tk.Button(form, text="Add Employee", width=20, command=self.add_employee).grid(
+            row=len(labels), column=0, columnspan=2, pady=15
+        )
 
         # ---------------- TABLE ----------------
         table_frame = tk.Frame(main_frame)
         table_frame.pack(side="right", fill="both", expand=True)
 
-        columns = (
-            "ID",
-            "Code",
-            "Name",
-            "Gender",
-            "Contact",
-            "Salary",
-            "Status"
-        )
+        columns = ("ID", "Code", "Name", "Gender", "Contact", "Salary", "Status")
 
-        self.tree = ttk.Treeview(
-            table_frame,
-            columns=columns,
-            show="headings"
-        )
+        self.tree = ttk.Treeview(table_frame, columns=columns, show="headings")
         self.tree.pack(fill="both", expand=True)
 
         for col in columns:
@@ -93,10 +71,9 @@ class EmployeeManagerWindow:
             text="Deactivate Selected Employee",
             bg="#ff6666",
             fg="white",
-            command=self.deactivate_employee
+            command=self.deactivate_employee,
         ).pack(pady=10)
 
-    # --------------------------------------------------
     def load_employees(self):
         self.tree.delete(*self.tree.get_children())
 
@@ -113,11 +90,10 @@ class EmployeeManagerWindow:
                     emp["gender"],
                     emp["contact_no"],
                     emp["basic_salary"],
-                    emp["status"]
-                )
+                    emp["status"],
+                ),
             )
 
-    # --------------------------------------------------
     def add_employee(self):
         try:
             emp_code = self.entries["Employee Code"].get().strip()
@@ -138,7 +114,7 @@ class EmployeeManagerWindow:
                 email=email,
                 date_of_joining=date.today(),
                 basic_salary=salary,
-                structure_id=None
+                structure_id=None,
             )
 
             self.load_employees()
@@ -147,7 +123,6 @@ class EmployeeManagerWindow:
         except Exception as e:
             messagebox.showerror("Error", str(e))
 
-    # --------------------------------------------------
     def deactivate_employee(self):
         selected = self.tree.focus()
         if not selected:
@@ -157,8 +132,7 @@ class EmployeeManagerWindow:
         emp_id = self.tree.item(selected)["values"][0]
 
         if messagebox.askyesno(
-            "Confirm",
-            "Are you sure you want to deactivate this employee?"
+            "Confirm", "Are you sure you want to deactivate this employee?"
         ):
             self.dao.deactivate_employee(emp_id)
             self.load_employees()
