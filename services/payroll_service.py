@@ -2,20 +2,15 @@
 
 from decimal import Decimal
 
-from database.employee_dao import EmployeeDAO
-from database.salary_dao import SalaryDAO
 from database.attendance_dao import AttendanceDAO
+from database.employee_dao import EmployeeDAO
 from database.payslip_dao import PayslipDAO
-
-from services.salary_calculator import SalaryCalculator
+from database.salary_dao import SalaryDAO
 from reports.pdf_generator import generate_payslip_pdf
+from services.salary_calculator import SalaryCalculator
 
 
 class PayrollService:
-    """
-    Handles end-to-end payroll generation.
-    """
-
     def __init__(self):
         self.employee_dao = EmployeeDAO()
         self.salary_dao = SalaryDAO()
@@ -24,17 +19,7 @@ class PayrollService:
 
         self.calculator = SalaryCalculator()
 
-    # --------------------------------------------------
-    def generate_payroll(
-        self,
-        emp_id: int,
-        month_year: str
-    ) -> int:
-        """
-        Generate payroll and payslip PDF for one employee.
-        Returns payroll_id.
-        """
-
+    def generate_payroll(self, emp_id: int, month_year: str) -> int:
         # 1️⃣ Get employee
         employee = self.employee_dao.get_by_id(emp_id)
         if not employee:
@@ -57,24 +42,17 @@ class PayrollService:
         salary_data = self.calculator.calculate_salary(
             basic_salary=Decimal(employee["basic_salary"]),
             salary_structure=structure,
-            attendance=(
-                None if not attendance_record
-                else attendance_record
-            )
+            attendance=(None if not attendance_record else attendance_record),
         )
 
         # 5️⃣ Save payroll record
         payroll_id = self.payslip_dao.create_payslip(
-            emp_id=emp_id,
-            month_year=month_year,
-            **salary_data
+            emp_id=emp_id, month_year=month_year, **salary_data
         )
 
         # 6️⃣ Generate PDF
         pdf_path = generate_payslip_pdf(
-            employee=employee,
-            month_year=month_year,
-            salary_data=salary_data
+            employee=employee, month_year=month_year, salary_data=salary_data
         )
 
         # 7️⃣ Update PDF path
