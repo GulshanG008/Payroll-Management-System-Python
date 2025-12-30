@@ -4,10 +4,6 @@ from decimal import Decimal
 
 
 class Payslip:
-    """
-    Represents a generated payslip / payroll record.
-    """
-
     def __init__(
         self,
         payroll_id: int,
@@ -21,7 +17,7 @@ class Payslip:
         tax: Decimal,
         gross_salary: Decimal,
         net_salary: Decimal,
-        pdf_path: str
+        pdf_path: str,
     ):
         self.payroll_id = payroll_id
         self.emp_id = emp_id
@@ -58,14 +54,11 @@ class Payslip:
             "tax": self.tax,
             "gross_salary": self.gross_salary,
             "net_salary": self.net_salary,
-            "pdf_path": self.pdf_path
+            "pdf_path": self.pdf_path,
         }
 
     @staticmethod
     def from_db_record(record: dict):
-        """
-        Create Payslip object from DB row (dict cursor).
-        """
         if not record:
             return None
 
@@ -84,5 +77,5 @@ class Payslip:
             tax=safe_decimal(record.get("tax")),
             gross_salary=safe_decimal(record.get("gross_salary")),
             net_salary=safe_decimal(record.get("net_salary")),
-            pdf_path=record.get("pdf_path")
+            pdf_path=record.get("pdf_path"),
         )
