@@ -4,31 +4,23 @@ from decimal import Decimal
 
 
 class SalaryStructure:
-    """
-    Represents a salary structure or pay grade.
-
-    NOTE:
-    - Percentage fields are stored as decimals.
-      Example: 0.12 = 12%
-    """
-
     def __init__(
         self,
         structure_id: int,
         name: str,
         base_salary_min: Decimal,
         base_salary_max: Decimal,
-        housing_allowance_pct: Decimal = Decimal('0.0'),
-        transport_allowance: Decimal = Decimal('0.0'),
-        tax_rate_pct: Decimal = Decimal('0.0')
+        housing_allowance_pct: Decimal = Decimal("0.0"),
+        transport_allowance: Decimal = Decimal("0.0"),
+        tax_rate_pct: Decimal = Decimal("0.0"),
     ):
         if base_salary_min > base_salary_max:
             raise ValueError("Minimum salary cannot exceed maximum salary")
 
-        if not (Decimal('0') <= tax_rate_pct <= Decimal('1')):
+        if not (Decimal("0") <= tax_rate_pct <= Decimal("1")):
             raise ValueError("Tax rate must be between 0 and 1")
 
-        if not (Decimal('0') <= housing_allowance_pct <= Decimal('1')):
+        if not (Decimal("0") <= housing_allowance_pct <= Decimal("1")):
             raise ValueError("Housing allowance must be between 0 and 1")
 
         self.structure_id = structure_id
@@ -55,18 +47,13 @@ class SalaryStructure:
             "base_salary_max": self.base_salary_max,
             "housing_allowance_pct": self.housing_allowance_pct,
             "transport_allowance": self.transport_allowance,
-            "tax_rate_pct": self.tax_rate_pct
+            "tax_rate_pct": self.tax_rate_pct,
         }
 
     @staticmethod
     def from_db_record(record: dict):
-        """
-        Create SalaryStructure from DB row.
-        Expects a dictionary-based cursor.
-        """
-
         def safe_decimal(value):
-            return Decimal(str(value)) if value is not None else Decimal('0.0')
+            return Decimal(str(value)) if value is not None else Decimal("0.0")
 
         return SalaryStructure(
             structure_id=record.get("structure_id"),

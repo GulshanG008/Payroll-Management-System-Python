@@ -1,17 +1,14 @@
 # models/attendance.py
 
-class Attendance:
-    """
-    Represents monthly attendance of an employee.
-    """
 
+class Attendance:
     def __init__(
         self,
         attendance_id: int,
         emp_id: int,
         month_year: str,
         days_worked: int,
-        days_absent: int
+        days_absent: int,
     ):
         self.attendance_id = attendance_id
         self.emp_id = emp_id
@@ -35,14 +32,11 @@ class Attendance:
             "emp_id": self.emp_id,
             "month_year": self.month_year,
             "days_worked": self.days_worked,
-            "days_absent": self.days_absent
+            "days_absent": self.days_absent,
         }
 
     @staticmethod
     def from_db_record(record: dict):
-        """
-        Create Attendance object from DB row (dict cursor).
-        """
         if not record:
             return None
 
@@ -51,5 +45,5 @@ class Attendance:
             emp_id=record.get("emp_id"),
             month_year=record.get("month_year"),
             days_worked=record.get("days_worked"),
-            days_absent=record.get("days_absent")
+            days_absent=record.get("days_absent"),
         )
