@@ -69,10 +69,6 @@ class PayrollWindow:
             )
 
         except Exception as e:
-<<<<<<< HEAD
-            messagebox.showerror("Error", str(e))
-=======
             messagebox.showerror("Error", str(e))
         except Exception as e:
             messagebox.showerror("Error", str(e))
->>>>>>> gui
