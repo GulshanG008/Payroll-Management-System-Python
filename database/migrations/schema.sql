@@ -1,13 +1,9 @@
--- ==========================================
 -- Payroll Management System Database Schema
--- ==========================================
 
 CREATE DATABASE IF NOT EXISTS payroll_management;
 USE payroll_management;
 
--- ==========================================
--- 1. ADMIN TABLE (Authentication)
--- ==========================================
+1. ADMIN TABLE (Authentication)
 CREATE TABLE admin (
     admin_id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(50) NOT NULL UNIQUE,
@@ -15,9 +11,7 @@ CREATE TABLE admin (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- ==========================================
--- 2. SALARY STRUCTURE TABLE (Pay Grades)
--- ==========================================
+2. SALARY STRUCTURE TABLE (Pay Grades)
 CREATE TABLE salary_structure (
     structure_id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(50) NOT NULL,
@@ -26,16 +20,14 @@ CREATE TABLE salary_structure (
 
     housing_allowance_pct DECIMAL(5,4) DEFAULT 0.0000,
     tax_rate_pct DECIMAL(5,4) DEFAULT 0.0000,
-    transport_allowance DECIMAL(10,2) DEFAULT 0.00,
+    transport_allowance DECIMAL(10,2) DEFAULT 0.00, 
 
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     CHECK (base_salary_min <= base_salary_max)
 );
 
--- ==========================================
--- 3. EMPLOYEE TABLE
--- ==========================================
+3. EMPLOYEE TABLE
 CREATE TABLE employee (
     emp_id INT AUTO_INCREMENT PRIMARY KEY,
     emp_code VARCHAR(20) NOT NULL UNIQUE,
@@ -57,9 +49,7 @@ CREATE TABLE employee (
         ON DELETE SET NULL
 );
 
--- ==========================================
--- 4. ATTENDANCE TABLE
--- ==========================================
+4. ATTENDANCE TABLE
 CREATE TABLE attendance (
     attendance_id INT AUTO_INCREMENT PRIMARY KEY,
     emp_id INT NOT NULL,
@@ -77,9 +67,7 @@ CREATE TABLE attendance (
     UNIQUE (emp_id, month_year)
 );
 
--- ==========================================
--- 5. PAYROLL / PAYSLIP TABLE
--- ==========================================
+5. PAYROLL / PAYSLIP TABLE
 CREATE TABLE payroll (
     payroll_id INT AUTO_INCREMENT PRIMARY KEY,
     emp_id INT NOT NULL,
@@ -108,8 +96,6 @@ CREATE TABLE payroll (
     UNIQUE (emp_id, month_year)
 );
 
--- ==========================================
--- 6. SAMPLE ADMIN USER
--- ==========================================
+6. SAMPLE ADMIN USER
 INSERT INTO admin (username, password_hash)
 VALUES ('admin', SHA2('admin123', 256));

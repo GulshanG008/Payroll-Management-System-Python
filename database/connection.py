@@ -1,6 +1,5 @@
 # database/connection.py
-import mysql.connector
-from mysql.connector import pooling, Error
+from mysql.connector import Error, pooling
 
 
 class DBConnectionManager:
@@ -31,7 +30,7 @@ class DBConnectionManager:
                 host=self.host,
                 database=self.database,
                 user=self.user,
-                password=self.password
+                password=self.password,
             )
             print(
                 f"✅ Connection pool '{self.pool_name}' "
