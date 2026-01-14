@@ -1,24 +1,13 @@
 # database/employee_dao.py
 
-from typing import List, Optional
 from decimal import Decimal
+from typing import List, Optional
 
-from database.connection import (
-    get_db_connection,
-    get_db_cursor,
-    release_db_connection
-)
+from database.connection import get_db_connection, get_db_cursor, release_db_connection
 
 
 class EmployeeDAO:
-    """
-    Data Access Object for Employee table.
-    Handles CRUD operations for employees.
-    """
-
-    # --------------------------------------------------
     # CREATE
-    # --------------------------------------------------
     def create_employee(
         self,
         emp_code: str,
@@ -28,7 +17,7 @@ class EmployeeDAO:
         email: str,
         date_of_joining,
         basic_salary: Decimal,
-        structure_id: Optional[int] = None
+        structure_id: Optional[int] = None,
     ) -> int:
         query = """
             INSERT INTO employee (
@@ -58,17 +47,15 @@ class EmployeeDAO:
                     email,
                     date_of_joining,
                     basic_salary,
-                    structure_id
-                )
+                    structure_id,
+                ),
             )
             conn.commit()
             return cursor.lastrowid
         finally:
             release_db_connection(conn)
 
-    # --------------------------------------------------
     # READ BY ID
-    # --------------------------------------------------
     def get_by_id(self, emp_id: int) -> Optional[dict]:
         query = """
             SELECT *
@@ -85,9 +72,7 @@ class EmployeeDAO:
         finally:
             release_db_connection(conn)
 
-    # --------------------------------------------------
     # READ BY EMP CODE
-    # --------------------------------------------------
     def get_by_emp_code(self, emp_code: str) -> Optional[dict]:
         query = """
             SELECT *
@@ -104,9 +89,7 @@ class EmployeeDAO:
         finally:
             release_db_connection(conn)
 
-    # --------------------------------------------------
     # READ ALL ACTIVE EMPLOYEES
-    # --------------------------------------------------
     def get_all_active(self) -> List[dict]:
         query = """
             SELECT *
@@ -124,9 +107,7 @@ class EmployeeDAO:
         finally:
             release_db_connection(conn)
 
-    # --------------------------------------------------
     # UPDATE
-    # --------------------------------------------------
     def update_employee(
         self,
         emp_id: int,
@@ -135,7 +116,7 @@ class EmployeeDAO:
         contact_no: str,
         email: str,
         basic_salary: Decimal,
-        structure_id: Optional[int]
+        structure_id: Optional[int],
     ) -> bool:
         query = """
             UPDATE employee
@@ -162,17 +143,15 @@ class EmployeeDAO:
                     email,
                     basic_salary,
                     structure_id,
-                    emp_id
-                )
+                    emp_id,
+                ),
             )
             conn.commit()
             return cursor.rowcount > 0
         finally:
             release_db_connection(conn)
 
-    # --------------------------------------------------
     # DEACTIVATE (SOFT DELETE)
-    # --------------------------------------------------
     def deactivate_employee(self, emp_id: int) -> bool:
         query = """
             UPDATE employee
@@ -190,9 +169,7 @@ class EmployeeDAO:
         finally:
             release_db_connection(conn)
 
-    # --------------------------------------------------
     # DELETE (HARD DELETE - USE CAREFULLY)
-    # --------------------------------------------------
     def delete_employee(self, emp_id: int) -> bool:
         query = """
             DELETE FROM employee

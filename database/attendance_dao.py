@@ -1,26 +1,12 @@
 # database/attendance_dao.py
 
-from database.connection import (
-    get_db_connection,
-    get_db_cursor,
-    release_db_connection
-)
+from database.connection import get_db_connection, get_db_cursor, release_db_connection
 
 
 class AttendanceDAO:
-    """
-    Data Access Object for Attendance table.
-    """
-
-    # --------------------------------------------------
     # CREATE / ADD ATTENDANCE
-    # --------------------------------------------------
     def add_attendance(
-        self,
-        emp_id: int,
-        month_year: str,
-        days_worked: int,
-        days_absent: int
+        self, emp_id: int, month_year: str, days_worked: int, days_absent: int
     ) -> int:
         query = """
             INSERT INTO attendance (
@@ -36,23 +22,14 @@ class AttendanceDAO:
         cursor = get_db_cursor(conn)
 
         try:
-            cursor.execute(
-                query,
-                (emp_id, month_year, days_worked, days_absent)
-            )
+            cursor.execute(query, (emp_id, month_year, days_worked, days_absent))
             conn.commit()
             return cursor.lastrowid
         finally:
             release_db_connection(conn)
 
-    # --------------------------------------------------
     # READ BY EMPLOYEE + MONTH
-    # --------------------------------------------------
-    def get_by_employee_and_month(
-        self,
-        emp_id: int,
-        month_year: str
-    ):
+    def get_by_employee_and_month(self, emp_id: int, month_year: str):
         query = """
             SELECT *
             FROM attendance
@@ -68,14 +45,9 @@ class AttendanceDAO:
         finally:
             release_db_connection(conn)
 
-    # --------------------------------------------------
     # UPDATE ATTENDANCE
-    # --------------------------------------------------
     def update_attendance(
-        self,
-        attendance_id: int,
-        days_worked: int,
-        days_absent: int
+        self, attendance_id: int, days_worked: int, days_absent: int
     ) -> bool:
         query = """
             UPDATE attendance
@@ -89,18 +61,13 @@ class AttendanceDAO:
         cursor = get_db_cursor(conn)
 
         try:
-            cursor.execute(
-                query,
-                (days_worked, days_absent, attendance_id)
-            )
+            cursor.execute(query, (days_worked, days_absent, attendance_id))
             conn.commit()
             return cursor.rowcount > 0
         finally:
             release_db_connection(conn)
 
-    # --------------------------------------------------
     # DELETE ATTENDANCE
-    # --------------------------------------------------
     def delete_attendance(self, attendance_id: int) -> bool:
         query = """
             DELETE FROM attendance
@@ -117,9 +84,7 @@ class AttendanceDAO:
         finally:
             release_db_connection(conn)
 
-    # --------------------------------------------------
     # LIST ALL ATTENDANCE FOR EMPLOYEE
-    # --------------------------------------------------
     def get_all_for_employee(self, emp_id: int):
         query = """
             SELECT *
@@ -136,4 +101,3 @@ class AttendanceDAO:
             return cursor.fetchall()
         finally:
             release_db_connection(conn)
-

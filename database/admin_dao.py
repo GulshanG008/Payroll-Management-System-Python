@@ -2,22 +2,11 @@
 
 from typing import Optional
 
-from database.connection import (
-    get_db_connection,
-    get_db_cursor,
-    release_db_connection
-)
+from database.connection import get_db_connection, get_db_cursor, release_db_connection
 
 
 class AdminDAO:
-    """
-    Data Access Object for Admin authentication.
-    Handles admin login and admin management.
-    """
-
-    # --------------------------------------------------
     # CREATE ADMIN
-    # --------------------------------------------------
     def create_admin(self, username: str, password_hash: str) -> int:
         query = """
             INSERT INTO admin (username, password_hash)
@@ -34,9 +23,7 @@ class AdminDAO:
         finally:
             release_db_connection(conn)
 
-    # --------------------------------------------------
     # GET ADMIN BY USERNAME
-    # --------------------------------------------------
     def get_by_username(self, username: str) -> Optional[dict]:
         query = """
             SELECT *
@@ -53,9 +40,7 @@ class AdminDAO:
         finally:
             release_db_connection(conn)
 
-    # --------------------------------------------------
     # GET ADMIN BY ID
-    # --------------------------------------------------
     def get_by_id(self, admin_id: int) -> Optional[dict]:
         query = """
             SELECT admin_id, username, created_at
@@ -72,9 +57,7 @@ class AdminDAO:
         finally:
             release_db_connection(conn)
 
-    # --------------------------------------------------
     # UPDATE PASSWORD
-    # --------------------------------------------------
     def update_password(self, admin_id: int, new_password_hash: str) -> bool:
         query = """
             UPDATE admin
@@ -92,9 +75,7 @@ class AdminDAO:
         finally:
             release_db_connection(conn)
 
-    # --------------------------------------------------
     # DELETE ADMIN (OPTIONAL)
-    # --------------------------------------------------
     def delete_admin(self, admin_id: int) -> bool:
         query = """
             DELETE FROM admin

@@ -1,20 +1,10 @@
 # database/payslip_dao.py
 
-from database.connection import (
-    get_db_connection,
-    get_db_cursor,
-    release_db_connection
-)
+from database.connection import get_db_connection, get_db_cursor, release_db_connection
 
 
 class PayslipDAO:
-    """
-    Data Access Object for Payroll / Payslip table.
-    """
-
-    # --------------------------------------------------
     # CREATE PAYSLIP / PAYROLL
-    # --------------------------------------------------
     def create_payslip(
         self,
         emp_id: int,
@@ -24,7 +14,7 @@ class PayslipDAO:
         transport_allowance,
         tax,
         gross_salary,
-        net_salary
+        net_salary,
     ) -> int:
         query = """
             INSERT INTO payroll (
@@ -54,17 +44,15 @@ class PayslipDAO:
                     transport_allowance,
                     tax,
                     gross_salary,
-                    net_salary
-                )
+                    net_salary,
+                ),
             )
             conn.commit()
             return cursor.lastrowid
         finally:
             release_db_connection(conn)
 
-    # --------------------------------------------------
     # UPDATE PDF PATH
-    # --------------------------------------------------
     def update_pdf_path(self, payroll_id: int, pdf_path: str) -> bool:
         query = """
             UPDATE payroll
@@ -82,14 +70,8 @@ class PayslipDAO:
         finally:
             release_db_connection(conn)
 
-    # --------------------------------------------------
     # GET PAYSLIP BY EMPLOYEE + MONTH
-    # --------------------------------------------------
-    def get_by_employee_and_month(
-        self,
-        emp_id: int,
-        month_year: str
-    ):
+    def get_by_employee_and_month(self, emp_id: int, month_year: str):
         query = """
             SELECT *
             FROM payroll
@@ -105,9 +87,7 @@ class PayslipDAO:
         finally:
             release_db_connection(conn)
 
-    # --------------------------------------------------
     # LIST PAYSLIPS FOR EMPLOYEE
-    # --------------------------------------------------
     def get_all_for_employee(self, emp_id: int):
         query = """
             SELECT *
@@ -124,4 +104,3 @@ class PayslipDAO:
             return cursor.fetchall()
         finally:
             release_db_connection(conn)
-

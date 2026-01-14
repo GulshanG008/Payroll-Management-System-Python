@@ -1,9 +1,4 @@
 # config/settings.py
-
-"""
-Application-wide settings for Payroll Management System.
-"""
-
 APP_NAME = "Payroll Management System"
 APP_VERSION = "1.0"
 
