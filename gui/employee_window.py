@@ -69,9 +69,11 @@ class EmployeeManagerWindow:
         self.entries = {}
 
         for i, label in enumerate(labels):
-            tk.Label(form, text=label).grid(row=i, column=0, pady=6, sticky="w")
+            tk.Label(form, text=label).grid(
+                row=i, column=0, pady=6, sticky="w", padx=(5, 10)
+            )
             entry = tk.Entry(form, width=25)
-            entry.grid(row=i, column=1, pady=6)
+            entry.grid(row=i, column=1, pady=6, sticky="w", padx=(0, 10))
             self.entries[label] = entry
 
         tk.Button(form, text="Add Employee", width=20, command=self.add_employee).grid(
