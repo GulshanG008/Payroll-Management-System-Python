@@ -1,5 +1,3 @@
-# gui/employee_window.py
-
 import tkinter as tk
 from datetime import date
 from decimal import Decimal
@@ -9,18 +7,46 @@ from database.employee_dao import EmployeeDAO
 
 
 class EmployeeManagerWindow:
-    def __init__(self, root):
+    def __init__(self, root, dashboard_root):
+        self.dashboard_root = dashboard_root
+
         self.root = tk.Toplevel(root)
         self.root.title("Employee Management")
-        self.root.geometry("900x600")
         self.root.resizable(False, False)
+
+        width, height = 900, 600
+        self._center_window(width, height)
 
         self.dao = EmployeeDAO()
 
         self._create_widgets()
         self.load_employees()
 
+        # Handle window close (X button)
+        self.root.protocol("WM_DELETE_WINDOW", self.go_back)
+
+    def _center_window(self, width, height):
+        self.root.update_idletasks()
+        screen_width = self.root.winfo_screenwidth()
+        screen_height = self.root.winfo_screenheight()
+
+        x = (screen_width // 2) - (width // 2)
+        y = (screen_height // 2) - (height // 2)
+
+        self.root.geometry(f"{width}x{height}+{x}+{y}")
+
     def _create_widgets(self):
+        top_bar = tk.Frame(self.root)
+        top_bar.pack(fill="x", padx=10, pady=(10, 0))
+
+        tk.Button(
+            top_bar,
+            text="⬅ Back to Dashboard",
+            command=self.go_back,
+            bg="#dddddd",
+            width=18,
+        ).pack(anchor="w")
+
         tk.Label(
             self.root, text="Employee Management", font=("Arial", 18, "bold")
         ).pack(pady=10)
@@ -28,7 +54,6 @@ class EmployeeManagerWindow:
         main_frame = tk.Frame(self.root)
         main_frame.pack(fill="both", expand=True, padx=10, pady=10)
 
-        # ---------------- FORM ----------------
         form = tk.LabelFrame(main_frame, text="Add Employee", font=("Arial", 12))
         form.pack(side="left", fill="y", padx=10)
 
@@ -53,7 +78,6 @@ class EmployeeManagerWindow:
             row=len(labels), column=0, columnspan=2, pady=15
         )
 
-        # ---------------- TABLE ----------------
         table_frame = tk.Frame(main_frame)
         table_frame.pack(side="right", fill="both", expand=True)
 
@@ -72,6 +96,7 @@ class EmployeeManagerWindow:
             bg="#ff6666",
             fg="white",
             command=self.deactivate_employee,
+            width=30,
         ).pack(pady=10)
 
     def load_employees(self):
@@ -120,6 +145,9 @@ class EmployeeManagerWindow:
             self.load_employees()
             messagebox.showinfo("Success", "Employee added successfully")
 
+            for entry in self.entries.values():
+                entry.delete(0, tk.END)
+
         except Exception as e:
             messagebox.showerror("Error", str(e))
 
@@ -136,3 +164,7 @@ class EmployeeManagerWindow:
         ):
             self.dao.deactivate_employee(emp_id)
             self.load_employees()
+
+    def go_back(self):
+        self.root.destroy()
+        self.dashboard_root.deiconify()
