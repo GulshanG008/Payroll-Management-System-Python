@@ -76,21 +76,27 @@ class EmployeeManagerWindow:
             entry.grid(row=i, column=1, pady=6, sticky="w", padx=(0, 10))
             self.entries[label] = entry
 
-        tk.Button(form, text="Add Employee", width=20, command=self.add_employee).grid(
-            row=len(labels), column=0, columnspan=2, pady=15
-        )
-
         table_frame = tk.Frame(main_frame)
         table_frame.pack(side="right", fill="both", expand=True)
 
         columns = ("ID", "Code", "Name", "Gender", "Contact", "Salary", "Status")
 
         self.tree = ttk.Treeview(table_frame, columns=columns, show="headings")
-        self.tree.pack(fill="both", expand=True)
+        self.tree.pack(side="left", fill="both", expand=True)
+
+        vsb = ttk.Scrollbar(table_frame, orient="vertical", command=self.tree.yview)
+        vsb.pack(side="right", fill="y")
+        self.tree.configure(yscrollcommand=vsb.set)
+
+        hsb = ttk.Scrollbar(table_frame, orient="horizontal", command=self.tree.xview)
+        hsb.pack(side="bottom", fill="x")
+        self.tree.configure(xscrollcommand=hsb.set)
 
         for col in columns:
             self.tree.heading(col, text=col)
-            self.tree.column(col, anchor="center")
+            self.tree.column(col, anchor="center", width=100)
+            self.tree.column("Name", width=200)
+            self.tree.column("Code", width=120)
 
         tk.Button(
             self.root,
