@@ -117,7 +117,8 @@ class DashboardWindow:
         ).pack(pady=(10, 30))
 
     def open_employee_window(self):
-        EmployeeManagerWindow(self.root)
+        self.root.withdraw()
+        EmployeeManagerWindow(self.root, self.root)
 
     def open_attendance_window(self):
         AttendanceWindow(self.root)
