@@ -163,12 +163,8 @@ class EmployeeManagerWindow:
             "Confirm", "Are you sure you want to deactivate this employee?"
         ):
             self.dao.deactivate_employee(emp_id)
-<<<<<<< HEAD
-            self.load_employees()
-=======
             self.load_employees()
 
     def go_back(self):
         self.root.destroy()
         self.dashboard_root.deiconify()
->>>>>>> gui
