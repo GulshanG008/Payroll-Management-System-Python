@@ -36,9 +36,14 @@ class LoginWindow:
 
         style.configure("TFrame", background="#aacbec")
 
-        style.configure("Title.TLabel", font=self.title_font)
+        style.configure(
+            "Title.TLabel",
+            font=self.title_font,
+            background="#aacbec",
+            foreground="#003366",
+        )
 
-        style.configure("Form.TLabel", font=self.label_font)
+        style.configure("Form.TLabel", font=self.label_font, background="#aacbec")
 
         style.configure("TEntry", font=self.entry_font)
 
