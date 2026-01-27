@@ -15,11 +15,11 @@ class LoginWindow:
         self.auth_service = auth_service
         self.on_login_success = on_login_success
 
-        self.root.title("Payroll Management System - Login")
-        self.root.geometry("400x500")
+        self.root.title("Payroll Management Admin Login")
+        self.root.geometry("500x400")
         self.root.resizable(False, False)
 
-        self._center_window(400, 500)
+        self._center_window(500, 400)
         self._configure_styles()
         self._create_widgets()
 
@@ -34,7 +34,7 @@ class LoginWindow:
         style = ttk.Style()
         style.theme_use("clam")
 
-        style.configure("TFrame", background="#f4f6f8")
+        style.configure("TFrame", background="#65b1f0ea")
 
         style.configure(
             "Title.TLabel",
