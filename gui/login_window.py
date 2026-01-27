@@ -34,7 +34,7 @@ class LoginWindow:
         style = ttk.Style()
         style.theme_use("clam")
 
-        style.configure("TFrame", background="#65b1f0ea")
+        style.configure("TFrame", background="#8abae9")
 
         style.configure(
             "Title.TLabel",
