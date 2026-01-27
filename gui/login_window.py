@@ -7,6 +7,7 @@ from tkinter import messagebox
 class LoginWindow:
     def __init__(self, root, auth_service, on_login_success):
         self.root = root
+        self.root.configure(bg="#2c3e50")
         self.auth_service = auth_service
         self.on_login_success = on_login_success
 
@@ -31,9 +32,15 @@ class LoginWindow:
     button_font = ("Segoe UI", 11, "bold")
 
     def _create_widgets(self):
-        tk.Label(self.root, text="Admin Login", font=self.title_font).pack(pady=25)
+        tk.Label(
+            self.root,
+            text="Admin Login",
+            font=self.title_font,
+            bg="#2c3e50",
+            fg="white",
+        ).pack(pady=25)
 
-        form_frame = tk.Frame(self.root)
+        form_frame = tk.Frame(self.root, bg="#2c3e50")
         form_frame.pack(pady=10)
         form_frame.grid_columnconfigure(1, minsize=260)
 
@@ -43,7 +50,12 @@ class LoginWindow:
         )
 
         self.username_entry = tk.Entry(
-            form_frame, width=self.ENTRY_WIDTH, font=self.entry_font
+            form_frame,
+            width=self.ENTRY_WIDTH,
+            font=self.entry_font,
+            bg="white",
+            fg="black",
+            insertbackground="black",
         )
         self.username_entry.configure(relief="solid", bd=1)
         self.username_entry.grid(row=0, column=1, pady=10)
