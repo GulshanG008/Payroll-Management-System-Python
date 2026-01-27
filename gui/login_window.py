@@ -6,8 +6,8 @@ class LoginWindow:
     ENTRY_WIDTH = 28
 
     title_font = ("Segoe UI", 20, "bold")
-    label_font = ("Segoe UI", 11, "bold")
-    entry_font = ("Segoe UI", 11)
+    label_font = ("Segoe UI", 14, "bold")
+    entry_font = ("Segoe UI", 15)
     button_font = ("Segoe UI", 11, "bold")
 
     def __init__(self, root, auth_service, on_login_success):
@@ -34,19 +34,17 @@ class LoginWindow:
         style = ttk.Style()
         style.theme_use("clam")
 
-        style.configure("TFrame", background="#8abae9")
+        style.configure("TFrame", background="#aacbec")
 
         style.configure(
             "Title.TLabel",
             font=self.title_font,
-            background="#f4f6f8",
-            foreground="#2c3e50",
+            foreground="#bebebe",
         )
 
         style.configure(
             "Form.TLabel",
             font=self.label_font,
-            background="#f4f6f8",
             foreground="#2c3e50",
         )
 
