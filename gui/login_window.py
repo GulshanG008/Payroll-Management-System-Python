@@ -58,6 +58,10 @@ class LoginWindow:
         main_frame = ttk.Frame(self.root, padding=20)
         main_frame.pack(expand=True, fill="both")
 
+        ttk.label(
+            main_frame, text="Payroll Management System", style="Title.TLabel"
+        ).pack(pady=(10, 5))
+
         ttk.Label(main_frame, text="Admin Login", style="Title.TLabel").pack(
             pady=(10, 25)
         )
