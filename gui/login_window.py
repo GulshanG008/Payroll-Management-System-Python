@@ -16,10 +16,10 @@ class LoginWindow:
         self.on_login_success = on_login_success
 
         self.root.title("Payroll Management System - Login")
-        self.root.geometry("400x300")
+        self.root.geometry("400x500")
         self.root.resizable(False, False)
 
-        self._center_window(400, 300)
+        self._center_window(400, 500)
         self._configure_styles()
         self._create_widgets()
 
