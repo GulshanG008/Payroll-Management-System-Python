@@ -1,13 +1,17 @@
 # gui/login_window.py
-
-import tkinter as tk
-from tkinter import messagebox
+from tkinter import messagebox, ttk
 
 
 class LoginWindow:
+    ENTRY_WIDTH = 28
+
+    title_font = ("Segoe UI", 20, "bold")
+    label_font = ("Segoe UI", 11, "bold")
+    entry_font = ("Segoe UI", 11)
+    button_font = ("Segoe UI", 11, "bold")
+
     def __init__(self, root, auth_service, on_login_success):
         self.root = root
-        self.root.configure(bg="#2c3e50")
         self.auth_service = auth_service
         self.on_login_success = on_login_success
 
@@ -16,6 +20,7 @@ class LoginWindow:
         self.root.resizable(False, False)
 
         self._center_window(400, 300)
+        self._configure_styles()
         self._create_widgets()
 
     def _center_window(self, width, height):
@@ -25,60 +30,67 @@ class LoginWindow:
         y = (sh // 2) - (height // 2)
         self.root.geometry(f"{width}x{height}+{x}+{y}")
 
-    ENTRY_WIDTH = 28
-    title_font = ("Segoe UI", 20, "bold")
-    label_font = ("Segoe UI", 11, "bold")
-    entry_font = ("Segoe UI", 11, "bold")
-    button_font = ("Segoe UI", 11, "bold")
+    def _configure_styles(self):
+        style = ttk.Style()
+        style.theme_use("clam")
+
+        style.configure("TFrame", background="#f4f6f8")
+
+        style.configure(
+            "Title.TLabel",
+            font=self.title_font,
+            background="#f4f6f8",
+            foreground="#2c3e50",
+        )
+
+        style.configure(
+            "Form.TLabel",
+            font=self.label_font,
+            background="#f4f6f8",
+            foreground="#2c3e50",
+        )
+
+        style.configure("TEntry", font=self.entry_font)
+
+        style.configure("Login.TButton", font=self.button_font, padding=6)
 
     def _create_widgets(self):
-        tk.Label(
-            self.root,
-            text="Admin Login",
-            font=self.title_font,
-            bg="#2c3e50",
-            fg="white",
-        ).pack(pady=25)
+        main_frame = ttk.Frame(self.root, padding=20)
+        main_frame.pack(expand=True, fill="both")
 
-        form_frame = tk.Frame(self.root, bg="#2c3e50")
-        form_frame.pack(pady=10)
-        form_frame.grid_columnconfigure(1, minsize=260)
+        ttk.Label(main_frame, text="Admin Login", style="Title.TLabel").pack(
+            pady=(10, 25)
+        )
+
+        form_frame = ttk.Frame(main_frame)
+        form_frame.pack()
 
         # Username
-        tk.Label(form_frame, text="Username:", font=self.label_font).grid(
+        ttk.Label(form_frame, text="Username:", style="Form.TLabel").grid(
             row=0, column=0, padx=10, pady=10, sticky="e"
         )
 
-        self.username_entry = tk.Entry(
-            form_frame,
-            width=self.ENTRY_WIDTH,
-            font=self.entry_font,
-            bg="white",
-            fg="black",
-            insertbackground="black",
-        )
-        self.username_entry.configure(relief="solid", bd=1)
+        self.username_entry = ttk.Entry(form_frame, width=self.ENTRY_WIDTH)
         self.username_entry.grid(row=0, column=1, pady=10)
 
         # Password
-        tk.Label(form_frame, text="Password:", font=self.label_font).grid(
+        ttk.Label(form_frame, text="Password:", style="Form.TLabel").grid(
             row=1, column=0, padx=10, pady=10, sticky="e"
         )
 
-        self.password_entry = tk.Entry(
-            form_frame, width=self.ENTRY_WIDTH, show="*", font=self.entry_font
-        )
-        self.password_entry.configure(relief="solid", bd=1)
+        self.password_entry = ttk.Entry(form_frame, width=self.ENTRY_WIDTH, show="*")
         self.password_entry.grid(row=1, column=1, pady=10)
 
         # Login Button
-        tk.Button(
-            self.root,
-            text="Login",
-            width=15,
-            font=self.button_font,
-            command=self.login,
+        ttk.Button(
+            main_frame, text="Login", style="Login.TButton", command=self.login
         ).pack(pady=25)
+
+        # Focus username field
+        self.username_entry.focus()
+
+        # Press Enter to login
+        self.root.bind("<Return>", lambda event: self.login())
 
     def login(self):
         username = self.username_entry.get().strip()
