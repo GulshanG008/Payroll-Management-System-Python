@@ -33,11 +33,11 @@ class DBConnectionManager:
                 password=self.password,
             )
             print(
-                f"✅ Connection pool '{self.pool_name}' "
+                f"Connection pool '{self.pool_name}' "
                 f"initialized with size {self.pool_size}"
             )
         except Error as e:
-            raise Exception(f"❌ Failed to initialize DB connection pool: {e}")
+            raise Exception(f"Failed to initialize DB connection pool: {e}")
 
     def get_connection(self):
         """
@@ -46,7 +46,7 @@ class DBConnectionManager:
         try:
             return self._connection_pool.get_connection()
         except Error as e:
-            raise Exception(f"❌ Unable to get DB connection: {e}")
+            raise Exception(f"Unable to get DB connection: {e}")
 
     def get_cursor(self, conn, dictionary=True):
         """
