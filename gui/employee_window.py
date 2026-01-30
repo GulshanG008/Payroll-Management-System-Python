@@ -34,14 +34,28 @@ class EmployeeManagerWindow:
 
     def _setup_style(self):
         style = ttk.Style()
-        style.theme_use("clam")
+        style.theme_use("default")
 
         style.configure("Title.TLabel", font=("Segoe UI", 18, "bold"))
 
         style.configure("Section.TLabelframe", padding=15)
         style.configure("Section.TLabelframe.Label", font=("Segoe UI", 11, "bold"))
 
-        style.configure("Action.TButton", font=("Segoe UI", 10), padding=6)
+        style.configure("TCheckbutton", focuscolor="none")
+        style.configure("TCombobox", fieldbackground="white")
+
+        style.configure(
+            "TButton",
+            focuscolor="none",
+        )
+
+        style.configure(
+            "Action.TButton",
+            font=("Segoe UI", 10),
+            padding=6,
+            background="#4CAF50",
+            foreground="white",
+        )
 
         style.configure(
             "Danger.TButton",
@@ -51,8 +65,22 @@ class EmployeeManagerWindow:
         )
         style.map("Danger.TButton", background=[("active", "#c9302c")])
 
-        style.configure("Treeview", rowheight=28)
-        style.configure("Treeview.Heading", font=("Segoe UI", 10, "bold"))
+        style.configure(
+            "Treeview", rowheight=28, highlightthickness=0, bd=0, relief="flat"
+        )
+
+        style.configure(
+            "Treeview.Heading",
+            font=("Segoe UI", 10, "bold"),
+            background="#f0f0f0",
+            foreground="black",
+            relief="flat",
+        )
+
+        style.map(
+            "Treeview.Heading",
+            background=[("active", "#e0e0e0")],
+        )
 
     def _create_widgets(self):
         # Header
@@ -129,14 +157,9 @@ class EmployeeManagerWindow:
         self.tree.pack(side="left", fill="both", expand=True)
 
         vsb = ttk.Scrollbar(tree_container, orient="vertical", command=self.tree.yview)
-        hsb = ttk.Scrollbar(
-            tree_container, orient="horizontal", command=self.tree.xview
-        )
-
         vsb.pack(side="right", fill="y")
-        hsb.pack(side="bottom", fill="x")
 
-        self.tree.configure(yscrollcommand=vsb.set, xscrollcommand=hsb.set)
+        self.tree.configure(yscrollcommand=vsb.set)
 
         for col in columns:
             self.tree.heading(col, text=col)
@@ -162,23 +185,6 @@ class EmployeeManagerWindow:
             style="Danger.TButton",
             command=self.delete_employee,
         ).pack(side="left", padx=5)
-
-        # Enable faster scrolling
-        self._bind_mousewheel()
-
-    def _bind_mousewheel(self):
-        self.tree.bind("<MouseWheel>", self._on_mousewheel)
-        self.tree.bind("<Button-4>", self._on_mousewheel)
-        self.tree.bind("<Button-5>", self._on_mousewheel)
-
-    def _on_mousewheel(self, event):
-        if event.delta:
-            self.tree.yview_scroll(int(-1 * (event.delta / 120) * 5), "units")
-        else:
-            if event.num == 4:
-                self.tree.yview_scroll(-5, "units")
-            elif event.num == 5:
-                self.tree.yview_scroll(5, "units")
 
     def load_employees(self):
         self.tree.delete(*self.tree.get_children())
