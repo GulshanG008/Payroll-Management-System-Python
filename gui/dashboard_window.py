@@ -1,29 +1,38 @@
+import tkinter as tk
+from datetime import date
+from decimal import Decimal
 from tkinter import messagebox, ttk
 
-from gui.attendance_window import AttendanceWindow
-from gui.employee_window import EmployeeManagerWindow
-from gui.payroll_window import PayrollWindow
-from gui.salary_window import SalaryWindow
+from database.employee_dao import EmployeeDAO
 
 
-class DashboardWindow:
-    def __init__(self, root, auth_service, on_logout):
-        self.root = root
-        self.auth_service = auth_service
-        self.on_logout = on_logout
+class EmployeeManagerWindow:
+    def __init__(self, root, dashboard_root):
+        self.dashboard_root = dashboard_root
 
-        self.root.title("Payroll Management System - Dashboard")
-        self.root.geometry("900x600")
+        self.root = tk.Toplevel(root)
+        self.root.title("Employee Management")
+        self.root.resizable(False, False)
 
-        self._center_window(900, 600)
-        self._setup_style()
+        width, height = 900, 600
+        self._center_window(width, height)
+
+        self.dao = EmployeeDAO()
+
         self._create_widgets()
+        self.load_employees()
+
+        # Handle window close (X button)
+        self.root.protocol("WM_DELETE_WINDOW", self.go_back)
 
     def _center_window(self, width, height):
-        sw = self.root.winfo_screenwidth()
-        sh = self.root.winfo_screenheight()
-        x = (sw // 2) - (width // 2)
-        y = (sh // 2) - (height // 2)
+        self.root.update_idletasks()
+        screen_width = self.root.winfo_screenwidth()
+        screen_height = self.root.winfo_screenheight()
+
+        x = (screen_width // 2) - (width // 2)
+        y = (screen_height // 2) - (height // 2)
+
         self.root.geometry(f"{width}x{height}+{x}+{y}")
 
     def _setup_style(self):
@@ -58,68 +67,143 @@ class DashboardWindow:
         self.style.map("Logout.TButton", background=[("active", "#ff4d4d")])
 
     def _create_widgets(self):
-        admin = self.auth_service.current_user
+        top_bar = tk.Frame(self.root)
+        top_bar.pack(fill="x", padx=10, pady=(10, 0))
 
-        header = ttk.Frame(self.root, style="Header.TFrame", height=60)
-        header.pack(fill="x")
+        tk.Button(
+            top_bar,
+            text="⬅ Back to Dashboard",
+            command=self.go_back,
+            bg="#dddddd",
+            width=18,
+        ).pack(anchor="w")
 
-        ttk.Label(header, text="Payroll Management System", style="Header.TLabel").pack(
-            side="left", padx=20
-        )
+        tk.Label(
+            self.root, text="Employee Management", font=("Arial", 18, "bold")
+        ).pack(pady=10)
 
-        ttk.Label(
-            header, text=f"Logged in as: {admin['username']}", style="SubHeader.TLabel"
-        ).pack(side="right", padx=20)
+        main_frame = tk.Frame(self.root)
+        main_frame.pack(fill="both", expand=True, padx=10, pady=10)
 
-        card = ttk.Frame(self.root, padding=40, relief="solid")
-        card.pack(pady=60)
+        form = tk.LabelFrame(main_frame, text="Add Employee", font=("Arial", 12))
+        form.pack(side="left", fill="y", padx=10)
 
-        ttk.Button(
-            card,
-            text="Manage Employees",
-            style="Dashboard.TButton",
-            command=self.open_employee_window,
-        ).grid(row=0, column=0, padx=40, pady=25)
+        labels = [
+            "Employee Code",
+            "Full Name",
+            "Gender",
+            "Contact No",
+            "Email",
+            "Basic Salary",
+        ]
 
-        ttk.Button(
-            card,
-            text="Generate Payroll",
-            style="Dashboard.TButton",
-            command=self.generate_payroll,
-        ).grid(row=0, column=1, padx=40, pady=25)
+        self.entries = {}
 
-        ttk.Button(
-            card,
-            text="Attendance",
-            style="Dashboard.TButton",
-            command=self.open_attendance_window,
-        ).grid(row=1, column=0, padx=40, pady=25)
+        for i, label in enumerate(labels):
+            tk.Label(form, text=label).grid(
+                row=i, column=0, pady=6, sticky="w", padx=(5, 10)
+            )
+            entry = tk.Entry(form, width=25)
+            entry.grid(row=i, column=1, pady=6, sticky="w", padx=(0, 10))
+            self.entries[label] = entry
 
-        ttk.Button(
-            card,
-            text="Salary Structure",
-            style="Dashboard.TButton",
-            command=self.open_salary_window,
-        ).grid(row=1, column=1, padx=40, pady=25)
+        table_frame = tk.Frame(main_frame)
+        table_frame.pack(side="right", fill="both", expand=True)
 
-        ttk.Button(
-            self.root, text="Logout", style="Logout.TButton", command=self.logout
-        ).pack(pady=(10, 30))
+        columns = ("ID", "Code", "Name", "Gender", "Contact", "Salary", "Status")
 
-    def open_employee_window(self):
-        self.root.withdraw()
-        EmployeeManagerWindow(self.root, self.root)
+        self.tree = ttk.Treeview(table_frame, columns=columns, show="headings")
+        self.tree.pack(side="left", fill="both", expand=True)
 
-    def open_attendance_window(self):
-        AttendanceWindow(self.root)
+        vsb = ttk.Scrollbar(table_frame, orient="vertical", command=self.tree.yview)
+        vsb.pack(side="right", fill="y")
+        self.tree.configure(yscrollcommand=vsb.set)
 
-    def open_salary_window(self):
-        SalaryWindow(self.root)
+        hsb = ttk.Scrollbar(table_frame, orient="horizontal", command=self.tree.xview)
+        hsb.pack(side="bottom", fill="x")
+        self.tree.configure(xscrollcommand=hsb.set)
 
-    def generate_payroll(self):
-        PayrollWindow(self.root)
+        for col in columns:
+            self.tree.heading(col, text=col)
+            self.tree.column(col, anchor="center", width=100)
+            self.tree.column("Name", width=200)
+            self.tree.column("Code", width=120)
 
-    def logout(self):
-        if messagebox.askyesno("Confirm Logout", "Are you sure you want to logout?"):
-            self.auth_service.logout_admin()
-            self.on_logout()
+        tk.Button(
+            self.root,
+            text="Deactivate Selected Employee",
+            bg="#ff6666",
+            fg="white",
+            command=self.deactivate_employee,
+            width=30,
+        ).pack(pady=10)
+
+    def load_employees(self):
+        self.tree.delete(*self.tree.get_children())
+
+        employees = self.dao.get_all_active()
+
+        for emp in employees:
+            self.tree.insert(
+                "",
+                "end",
+                values=(
+                    emp["emp_id"],
+                    emp["emp_code"],
+                    emp["full_name"],
+                    emp["gender"],
+                    emp["contact_no"],
+                    emp["basic_salary"],
+                    emp["status"],
+                ),
+            )
+
+    def add_employee(self):
+        try:
+            emp_code = self.entries["Employee Code"].get().strip()
+            full_name = self.entries["Full Name"].get().strip()
+            gender = self.entries["Gender"].get().strip()
+            contact = self.entries["Contact No"].get().strip()
+            email = self.entries["Email"].get().strip()
+            salary = Decimal(self.entries["Basic Salary"].get().strip())
+
+            if not emp_code or not full_name:
+                raise ValueError("Employee Code and Full Name are required")
+
+            self.dao.create_employee(
+                emp_code=emp_code,
+                full_name=full_name,
+                gender=gender,
+                contact_no=contact,
+                email=email,
+                date_of_joining=date.today(),
+                basic_salary=salary,
+                structure_id=None,
+            )
+
+            self.load_employees()
+            messagebox.showinfo("Success", "Employee added successfully")
+
+            for entry in self.entries.values():
+                entry.delete(0, tk.END)
+
+        except Exception as e:
+            messagebox.showerror("Error", str(e))
+
+    def deactivate_employee(self):
+        selected = self.tree.focus()
+        if not selected:
+            messagebox.showerror("Error", "Please select an employee")
+            return
+
+        emp_id = self.tree.item(selected)["values"][0]
+
+        if messagebox.askyesno(
+            "Confirm", "Are you sure you want to deactivate this employee?"
+        ):
+            self.dao.deactivate_employee(emp_id)
+            self.load_employees()
+
+    def go_back(self):
+        self.root.destroy()
+        self.dashboard_root.deiconify()
