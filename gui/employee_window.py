@@ -14,8 +14,7 @@ class EmployeeManagerWindow:
         self.root.title("Employee Management")
         self.root.resizable(True, True)
 
-        width, height = 900, 600
-        self._center_window(width, height)
+        self._center_window(900, 600)
 
         self.dao = EmployeeDAO()
 
@@ -34,49 +33,53 @@ class EmployeeManagerWindow:
         self.root.geometry(f"{width}x{height}+{x}+{y}")
 
     def _setup_style(self):
-        self.style = ttk.Style()
-        self.style.theme_use("clam")
+        style = ttk.Style()
+        style.theme_use("clam")
 
-        self.style.configure("Title.TLabel", font=("Segoe UI", 18, "bold"))
+        style.configure("Title.TLabel", font=("Segoe UI", 18, "bold"))
 
-        self.style.configure("Section.TLabelframe", padding=15)
+        style.configure("Section.TLabelframe", padding=15)
+        style.configure("Section.TLabelframe.Label", font=("Segoe UI", 11, "bold"))
 
-        self.style.configure("Section.TLabelframe.Label", font=("Segoe UI", 11, "bold"))
+        style.configure("Action.TButton", font=("Segoe UI", 10), padding=6)
 
-        self.style.configure("Action.TButton", font=("Segoe UI", 10), padding=6)
-
-        self.style.configure(
+        style.configure(
             "Danger.TButton",
             font=("Segoe UI", 10, "bold"),
             foreground="white",
             background="#d9534f",
         )
+        style.map("Danger.TButton", background=[("active", "#c9302c")])
 
-        self.style.map("Danger.TButton", background=[("active", "#c9302c")])
+        style.configure("Treeview", rowheight=28)
+        style.configure("Treeview.Heading", font=("Segoe UI", 10, "bold"))
 
     def _create_widgets(self):
-        top_bar = ttk.Frame(self.root)
-        top_bar.pack(fill="x", padx=10, pady=(10, 0))
+        # Header
+        header = ttk.Frame(self.root, padding=10)
+        header.pack(fill="x")
 
         ttk.Button(
-            top_bar,
+            header,
             text="⬅ Back to Dashboard",
             style="Action.TButton",
             command=self.go_back,
         ).pack(anchor="w")
 
-        ttk.Label(self.root, text="Employee Management", style="Title.TLabel").pack(
-            pady=10
-        )
+        ttk.Label(
+            self.root,
+            text="Employee Management",
+            style="Title.TLabel",
+        ).pack(pady=5)
 
+        # Main container
         main_frame = ttk.Frame(self.root)
         main_frame.pack(fill="both", expand=True, padx=10, pady=10)
 
-        # -------- Form --------
         form = ttk.Labelframe(
             main_frame, text="Add Employee", style="Section.TLabelframe"
         )
-        form.pack(side="left", fill="y", padx=10)
+        form.pack(side="left", fill="y", padx=(10, 20))
 
         labels = [
             "Employee Code",
@@ -90,16 +93,30 @@ class EmployeeManagerWindow:
         self.entries = {}
 
         for i, label in enumerate(labels):
-            ttk.Label(form, text=label).grid(row=i, column=0, pady=6, sticky="w")
-            entry = ttk.Entry(form, width=25)
-            entry.grid(row=i, column=1, pady=6, sticky="w")
+            ttk.Label(form, text=label).grid(row=i, column=0, sticky="w", pady=8)
+
+            if label == "Gender":
+                entry = ttk.Combobox(
+                    form,
+                    values=["Male", "Female", "Other"],
+                    state="readonly",
+                    width=23,
+                )
+            else:
+                entry = ttk.Entry(form, width=25)
+
+            entry.grid(row=i, column=1, sticky="ew", pady=8)
             self.entries[label] = entry
 
+        form.columnconfigure(1, weight=1)
+
         ttk.Button(
-            form, text="Add Employee", style="Action.TButton", command=self.add_employee
+            form,
+            text="Add Employee",
+            style="Action.TButton",
+            command=self.add_employee,
         ).grid(row=len(labels), column=0, columnspan=2, pady=(15, 0))
 
-        # -------- Table --------
         table_frame = ttk.Frame(main_frame)
         table_frame.pack(side="right", fill="both", expand=True)
 
@@ -110,6 +127,7 @@ class EmployeeManagerWindow:
 
         vsb = ttk.Scrollbar(table_frame, orient="vertical", command=self.tree.yview)
         hsb = ttk.Scrollbar(table_frame, orient="horizontal", command=self.tree.xview)
+
         vsb.pack(side="right", fill="y")
         hsb.pack(side="bottom", fill="x")
 
@@ -117,41 +135,43 @@ class EmployeeManagerWindow:
 
         for col in columns:
             self.tree.heading(col, text=col)
-            self.tree.column(col, anchor="center", width=100)
+            self.tree.column(col, anchor="center", width=110)
 
-        self.tree.column("Name", width=200)
-        self.tree.column("Code", width=120)
+        self.tree.column("Name", width=220)
+        self.tree.column("Code", width=130)
 
-        button_bar = ttk.Frame(self.root)
-        button_bar.pack(pady=10)
+        button_bar = ttk.Frame(table_frame)
+        button_bar.pack(fill="x", pady=(10, 0))
 
         ttk.Button(
             button_bar,
             text="Deactivate Employee",
             style="Danger.TButton",
             command=self.deactivate_employee,
-        ).pack(side="left", padx=10)
+        ).pack(side="left", padx=5)
 
         ttk.Button(
             button_bar,
             text="Delete Employee",
             style="Danger.TButton",
             command=self.delete_employee,
-        ).pack(side="left", padx=10)
+        ).pack(side="left", padx=5)
 
-    def delete_employee(self):
-        selected = self.tree.focus()
-        if not selected:
-            messagebox.showerror("Error", "Please select an employee")
-            return
+        self._bind_mousewheel()
 
-        emp_id = self.tree.item(selected)["values"][0]
+    def _bind_mousewheel(self):
+        self.tree.bind("<MouseWheel>", self._on_mousewheel)
+        self.tree.bind("<Button-4>", self._on_mousewheel)
+        self.tree.bind("<Button-5>", self._on_mousewheel)
 
-        if messagebox.askyesno(
-            "Confirm", "Are you sure you want to delete this employee?"
-        ):
-            self.dao.delete_employee(emp_id)
-            self.load_employees()
+    def _on_mousewheel(self, event):
+        if event.delta:
+            self.tree.yview_scroll(int(-1 * (event.delta / 120) * 5), "units")
+        else:
+            if event.num == 4:
+                self.tree.yview_scroll(-5, "units")
+            elif event.num == 5:
+                self.tree.yview_scroll(5, "units")
 
     def load_employees(self):
         self.tree.delete(*self.tree.get_children())
@@ -212,10 +232,30 @@ class EmployeeManagerWindow:
         emp_id = self.tree.item(selected)["values"][0]
 
         if messagebox.askyesno(
-            "Confirm", "Are you sure you want to deactivate this employee?"
+            "Confirm Deactivation",
+            "Deactivate this employee?\n\nThey will no longer appear in payroll.",
         ):
             self.dao.deactivate_employee(emp_id)
             self.load_employees()
+
+    def delete_employee(self):
+        selected = self.tree.focus()
+        if not selected:
+            messagebox.showerror("Error", "Please select an employee")
+            return
+
+        emp_id = self.tree.item(selected)["values"][0]
+
+        if not messagebox.askyesno(
+            "Confirm Permanent Deletion",
+            "This will permanently delete the employee record.\n\n"
+            "This action cannot be undone.\n\n"
+            "Do you want to continue?",
+        ):
+            return
+
+        self.dao.delete_employee(emp_id)
+        self.load_employees()
 
     def go_back(self):
         self.root.destroy()
