@@ -120,13 +120,18 @@ class EmployeeManagerWindow:
         table_frame = ttk.Frame(main_frame)
         table_frame.pack(side="right", fill="both", expand=True)
 
+        tree_container = ttk.Frame(table_frame)
+        tree_container.pack(fill="both", expand=True)
+
         columns = ("ID", "Code", "Name", "Gender", "Contact", "Salary", "Status")
 
-        self.tree = ttk.Treeview(table_frame, columns=columns, show="headings")
+        self.tree = ttk.Treeview(tree_container, columns=columns, show="headings")
         self.tree.pack(side="left", fill="both", expand=True)
 
-        vsb = ttk.Scrollbar(table_frame, orient="vertical", command=self.tree.yview)
-        hsb = ttk.Scrollbar(table_frame, orient="horizontal", command=self.tree.xview)
+        vsb = ttk.Scrollbar(tree_container, orient="vertical", command=self.tree.yview)
+        hsb = ttk.Scrollbar(
+            tree_container, orient="horizontal", command=self.tree.xview
+        )
 
         vsb.pack(side="right", fill="y")
         hsb.pack(side="bottom", fill="x")
@@ -140,8 +145,9 @@ class EmployeeManagerWindow:
         self.tree.column("Name", width=220)
         self.tree.column("Code", width=130)
 
+        # Button bar (FIXED, ALWAYS VISIBLE)
         button_bar = ttk.Frame(table_frame)
-        button_bar.pack(fill="x", pady=(10, 0))
+        button_bar.pack(fill="x", pady=8)
 
         ttk.Button(
             button_bar,
@@ -157,6 +163,7 @@ class EmployeeManagerWindow:
             command=self.delete_employee,
         ).pack(side="left", padx=5)
 
+        # Enable faster scrolling
         self._bind_mousewheel()
 
     def _bind_mousewheel(self):
