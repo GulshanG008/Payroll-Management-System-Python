@@ -12,7 +12,7 @@ class EmployeeManagerWindow:
 
         self.root = tk.Toplevel(parent_root)
         self.root.title("Employee Management")
-        self.root.resizable(False, False)
+        self.root.resizable(True, True)
 
         width, height = 900, 600
         self._center_window(width, height)
@@ -122,12 +122,36 @@ class EmployeeManagerWindow:
         self.tree.column("Name", width=200)
         self.tree.column("Code", width=120)
 
+        button_bar = ttk.Frame(self.root)
+        button_bar.pack(pady=10)
+
         ttk.Button(
-            self.root,
-            text="Deactivate Selected Employee",
+            button_bar,
+            text="Deactivate Employee",
             style="Danger.TButton",
             command=self.deactivate_employee,
-        ).pack(pady=10)
+        ).pack(side="left", padx=10)
+
+        ttk.Button(
+            button_bar,
+            text="Delete Employee",
+            style="Danger.TButton",
+            command=self.delete_employee,
+        ).pack(side="left", padx=10)
+
+    def delete_employee(self):
+        selected = self.tree.focus()
+        if not selected:
+            messagebox.showerror("Error", "Please select an employee")
+            return
+
+        emp_id = self.tree.item(selected)["values"][0]
+
+        if messagebox.askyesno(
+            "Confirm", "Are you sure you want to delete this employee?"
+        ):
+            self.dao.delete_employee(emp_id)
+            self.load_employees()
 
     def load_employees(self):
         self.tree.delete(*self.tree.get_children())
