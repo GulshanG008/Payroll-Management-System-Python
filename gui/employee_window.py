@@ -274,3 +274,4 @@ class EmployeeManagerWindow:
     def go_back(self):
         self.root.destroy()
         self.dashboard_root.deiconify()
+        self.dashboard_root.update_idletasks()
