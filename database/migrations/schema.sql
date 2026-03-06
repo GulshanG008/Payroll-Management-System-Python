@@ -1,7 +1,7 @@
 CREATE DATABASE IF NOT EXISTS payroll_management;
 USE payroll_management;
 
---ADMIN TABLE (Authentication)
+-- ADMIN TABLE (Authentication)
 CREATE TABLE admin (
     admin_id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(50) NOT NULL UNIQUE,
@@ -9,7 +9,7 @@ CREATE TABLE admin (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
---SALARY STRUCTURE TABLE (Pay Grades)
+-- SALARY STRUCTURE TABLE (Pay Grades)
 CREATE TABLE salary_structure (
     structure_id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(50) NOT NULL,
@@ -22,7 +22,7 @@ CREATE TABLE salary_structure (
     CHECK (base_salary_min <= base_salary_max)
 );
 
---EMPLOYEE TABLE
+-- EMPLOYEE TABLE
 CREATE TABLE employee (
     emp_id INT AUTO_INCREMENT PRIMARY KEY,
     emp_code VARCHAR(20) NOT NULL UNIQUE,
@@ -44,7 +44,7 @@ CREATE TABLE employee (
 -- Reset auto-increment to 1 (safe if table is empty)
 ALTER TABLE employee AUTO_INCREMENT = 1;
 
---ATTENDANCE TABLE
+-- ATTENDANCE TABLE
 CREATE TABLE attendance (
     attendance_id INT AUTO_INCREMENT PRIMARY KEY,
     emp_id INT NOT NULL,
@@ -62,7 +62,7 @@ CREATE TABLE attendance (
     UNIQUE (emp_id, month_year)
 );
 
---PAYROLL TABLE
+-- PAYROLL TABLE
 CREATE TABLE payroll (
     payroll_id INT AUTO_INCREMENT PRIMARY KEY,
     emp_id INT NOT NULL,
@@ -84,6 +84,6 @@ CREATE TABLE payroll (
     UNIQUE (emp_id, month_year)
 );
 
---SAMPLE ADMIN USER
+-- SAMPLE ADMIN USER
 INSERT INTO admin (username, password_hash)
 VALUES ('admin', SHA2('admin123', 256));
