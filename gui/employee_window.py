@@ -12,9 +12,9 @@ class EmployeeManagerWindow:
 
         self.root = tk.Toplevel(parent_root)
         self.root.title("Employee Management")
+        self.window.state("zoomed")
+        self.window.minsize(900, 600)
         self.root.resizable(True, True)
-
-        self._center_window(900, 600)
 
         self.dao = EmployeeDAO()
 
@@ -23,14 +23,6 @@ class EmployeeManagerWindow:
         self.load_employees()
 
         self.root.protocol("WM_DELETE_WINDOW", self.go_back)
-
-    def _center_window(self, width, height):
-        self.root.update_idletasks()
-        sw = self.root.winfo_screenwidth()
-        sh = self.root.winfo_screenheight()
-        x = (sw // 2) - (width // 2)
-        y = (sh // 2) - (height // 2)
-        self.root.geometry(f"{width}x{height}+{x}+{y}")
 
     def _setup_style(self):
         style = ttk.Style()
