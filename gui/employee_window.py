@@ -12,9 +12,10 @@ class EmployeeManagerWindow:
 
         self.root = tk.Toplevel(parent_root)
         self.root.title("Employee Management")
-        self.root.resizable(True, True)
 
-        self._center_window(900, 600)
+        self.root.state("zoomed")
+        self.root.minsize(1000, 700)
+        self.root.resizable(True, True)
 
         self.dao = EmployeeDAO()
 
