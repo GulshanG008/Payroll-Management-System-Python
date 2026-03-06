@@ -11,7 +11,8 @@ class AttendanceWindow:
     def __init__(self, parent):
         self.window = tk.Toplevel(parent)
         self.window.title("Employee Attendance")
-        self.window.geometry("700x500")
+        self.window.state("zoomed")
+        self.window.minsize(900, 600)
         self.window.resizable(False, False)
 
         self.employee_dao = EmployeeDAO()
