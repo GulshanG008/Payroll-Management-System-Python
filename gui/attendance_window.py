@@ -11,9 +11,12 @@ class AttendanceWindow:
     def __init__(self, parent):
         self.window = tk.Toplevel(parent)
         self.window.title("Employee Attendance")
-        self.window.after(10, lambda: self.window.state("zoomed"))
-        self.window.minsize(900, 600)
-        self.window.resizable(False, False)
+
+        screen_width = self.window.winfo_screenwidth()
+        screen_height = self.window.winfo_screenheight()
+
+        self.window.geometry(f"{screen_width}x{screen_height}+0+0")
+        self.window.resizable(True, True)
 
         self.employee_dao = EmployeeDAO()
         self.attendance_service = AttendanceService()
