@@ -12,6 +12,8 @@ class AttendanceWindow:
         self.window = tk.Toplevel(parent)
         self.window.title("Employee Attendance")
 
+        self.window.update_idletasks()
+
         screen_width = self.window.winfo_screenwidth()
         screen_height = self.window.winfo_screenheight()
 
