@@ -1,4 +1,3 @@
---Create the database and use it
 CREATE DATABASE IF NOT EXISTS payroll_management;
 USE payroll_management;
 
