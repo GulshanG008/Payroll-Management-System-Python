@@ -23,6 +23,12 @@ class LoginWindow:
         self._configure_styles()
         self._create_widgets()
 
+        self.root.update_idletasks()
+        self.root.lift()
+        self.root.focus_force()
+        self.root.attributes("-topmost", True)
+        self.root.after(100, lambda: self.root.attributes("-topmost", False))
+
     def _center_window(self, width, height):
         sw = self.root.winfo_screenwidth()
         sh = self.root.winfo_screenheight()
