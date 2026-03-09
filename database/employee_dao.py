@@ -13,7 +13,7 @@ class EmployeeDAO:
         cursor = get_db_cursor(conn)
 
         try:
-            cursor.execute("SELECT COUNT(*) FROM employee")
+            cursor.execute("SELECT COUNT(*) AS total FROM employee")
             result = cursor.fetchone()
 
             if result["total"] == 0:
