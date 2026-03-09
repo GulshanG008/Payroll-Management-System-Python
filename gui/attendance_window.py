@@ -1,5 +1,3 @@
-# gui/attendance_window.py
-
 import tkinter as tk
 from tkinter import messagebox, ttk
 
@@ -9,11 +7,17 @@ from services.attendance_service import AttendanceService
 
 class AttendanceWindow:
     def __init__(self, parent):
+        self.parent = parent
+
         self.window = tk.Toplevel(parent)
         self.window.title("Employee Attendance")
         self.window.state("zoomed")
         self.window.minsize(900, 600)
         self.window.resizable(True, True)
+
+        # Prevent dashboard from popping up
+        self.window.transient(parent)
+        self.window.grab_set()
 
         self.employee_dao = EmployeeDAO()
         self.attendance_service = AttendanceService()
@@ -22,6 +26,7 @@ class AttendanceWindow:
         self.load_employees()
 
     def _create_widgets(self):
+
         tk.Label(
             self.window, text="Employee Attendance", font=("Arial", 16, "bold")
         ).pack(pady=15)
@@ -31,22 +36,26 @@ class AttendanceWindow:
 
         # Employee
         tk.Label(form, text="Employee").grid(row=0, column=0, pady=8, sticky="e")
+
         self.employee_combo = ttk.Combobox(form, width=30, state="readonly")
         self.employee_combo.grid(row=0, column=1, pady=8)
 
         # Month-Year
         tk.Label(form, text="Month-Year").grid(row=1, column=0, pady=8, sticky="e")
+
         self.month_entry = tk.Entry(form, width=33)
         self.month_entry.grid(row=1, column=1, pady=8)
         self.month_entry.insert(0, "March-2025")
 
         # Days Worked
         tk.Label(form, text="Days Worked").grid(row=2, column=0, pady=8, sticky="e")
+
         self.days_worked_entry = tk.Entry(form, width=33)
         self.days_worked_entry.grid(row=2, column=1, pady=8)
 
         # Days Absent
         tk.Label(form, text="Days Absent").grid(row=3, column=0, pady=8, sticky="e")
+
         self.days_absent_entry = tk.Entry(form, width=33)
         self.days_absent_entry.grid(row=3, column=1, pady=8)
 
@@ -62,6 +71,7 @@ class AttendanceWindow:
             side="left", padx=10
         )
 
+        # Table
         table_frame = tk.Frame(self.window)
         table_frame.pack(fill="both", expand=True, padx=10, pady=10)
 
@@ -75,19 +85,24 @@ class AttendanceWindow:
             self.tree.column(col, anchor="center")
 
     def load_employees(self):
+
         self.employees = self.employee_dao.get_all_active()
+
         self.employee_combo["values"] = [
             f"{e['emp_id']} - {e['full_name']}" for e in self.employees
         ]
 
     def save_attendance(self):
+
         if not self.employee_combo.get():
             messagebox.showerror("Error", "Please select an employee")
             return
 
         try:
             emp_id = int(self.employee_combo.get().split("-")[0].strip())
+
             month_year = self.month_entry.get().strip()
+
             days_worked = int(self.days_worked_entry.get())
             days_absent = int(self.days_absent_entry.get())
 
@@ -110,12 +125,14 @@ class AttendanceWindow:
             )
 
             messagebox.showinfo("Success", "Attendance saved successfully")
+
             self.clear_form()
 
         except Exception as e:
             messagebox.showerror("Error", str(e))
 
     def clear_form(self):
+
         self.month_entry.delete(0, tk.END)
         self.days_worked_entry.delete(0, tk.END)
         self.days_absent_entry.delete(0, tk.END)
