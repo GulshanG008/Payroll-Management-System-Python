@@ -7,6 +7,8 @@ from database.connection import get_db_connection, get_db_cursor, release_db_con
 
 
 class EmployeeDAO:
+    # EMPTY TABLE INITTIALIZATION
+
     # CREATE
     def create_employee(
         self,
