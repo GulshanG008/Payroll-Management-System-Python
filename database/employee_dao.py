@@ -8,6 +8,20 @@ from database.connection import get_db_connection, get_db_cursor, release_db_con
 
 class EmployeeDAO:
     # EMPTY TABLE INITTIALIZATION
+    def empty_table_initialization(self):
+        conn = get_db_connection()
+        cursor = get_db_cursor(conn)
+
+        try:
+            cursor.execute("SELECT COUNT(*) FROM employee")
+            result = cursor.fetchone()
+
+            if result[0] == 0:
+                cursor.execute("ALTER TABLE employee AUTO_INCREMENT = 1")
+                conn.commit()
+
+        finally:
+            release_db_connection(conn)
 
     # CREATE
     def create_employee(
@@ -150,6 +164,10 @@ class EmployeeDAO:
             )
             conn.commit()
             return cursor.rowcount > 0
+        except Exception:
+            conn.rollback()
+            raise
+
         finally:
             release_db_connection(conn)
 
@@ -168,10 +186,15 @@ class EmployeeDAO:
             cursor.execute(query, (emp_id,))
             conn.commit()
             return cursor.rowcount > 0
+
+        except Exception:
+            conn.rollback()
+            raise
+
         finally:
             release_db_connection(conn)
 
-    # DELETE (HARD DELETE - USE CAREFULLY)
+    # DELETE
     def delete_employee(self, emp_id: int) -> bool:
         query = """
             DELETE FROM employee
@@ -184,6 +207,17 @@ class EmployeeDAO:
         try:
             cursor.execute(query, (emp_id,))
             conn.commit()
-            return cursor.rowcount > 0
+
+            deleted = cursor.rowcount > 0
+
+        except Exception:
+            conn.rollback()
+            raise
+
         finally:
             release_db_connection(conn)
+
+        if deleted:
+            self.empty_table_initialization()
+
+        return deleted
