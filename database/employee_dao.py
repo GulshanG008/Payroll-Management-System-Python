@@ -111,7 +111,7 @@ class EmployeeDAO:
             SELECT *
             FROM employee
             WHERE status = 'ACTIVE'
-            ORDER BY full_name
+            ORDER BY emp_id
         """
 
         conn = get_db_connection()
