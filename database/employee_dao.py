@@ -16,7 +16,7 @@ class EmployeeDAO:
             cursor.execute("SELECT COUNT(*) FROM employee")
             result = cursor.fetchone()
 
-            if result[0] == 0:
+            if result["total"] == 0:
                 cursor.execute("ALTER TABLE employee AUTO_INCREMENT = 1")
                 conn.commit()
 
