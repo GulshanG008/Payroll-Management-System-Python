@@ -1,13 +1,28 @@
-# database/attendance_dao.py
-
 from database.connection import get_db_connection, get_db_cursor, release_db_connection
 
 
 class AttendanceDAO:
+    # RESET AUTO_INCREMENT IF TABLE EMPTY
+    def _reset_auto_increment_if_empty(self):
+        conn = get_db_connection()
+        cursor = get_db_cursor(conn)
+
+        try:
+            cursor.execute("SELECT COUNT(*) AS total FROM attendance")
+            result = cursor.fetchone()
+
+            if result["total"] == 0:
+                cursor.execute("ALTER TABLE attendance AUTO_INCREMENT = 1")
+                conn.commit()
+
+        finally:
+            release_db_connection(conn)
+
     # CREATE / ADD ATTENDANCE
     def add_attendance(
         self, emp_id: int, month_year: str, days_worked: int, days_absent: int
     ) -> int:
+
         query = """
             INSERT INTO attendance (
                 emp_id,
@@ -25,11 +40,13 @@ class AttendanceDAO:
             cursor.execute(query, (emp_id, month_year, days_worked, days_absent))
             conn.commit()
             return cursor.lastrowid
+
         finally:
             release_db_connection(conn)
 
     # READ BY EMPLOYEE + MONTH
     def get_by_employee_and_month(self, emp_id: int, month_year: str):
+
         query = """
             SELECT *
             FROM attendance
@@ -42,6 +59,7 @@ class AttendanceDAO:
         try:
             cursor.execute(query, (emp_id, month_year))
             return cursor.fetchone()
+
         finally:
             release_db_connection(conn)
 
@@ -49,6 +67,7 @@ class AttendanceDAO:
     def update_attendance(
         self, attendance_id: int, days_worked: int, days_absent: int
     ) -> bool:
+
         query = """
             UPDATE attendance
             SET
@@ -64,11 +83,13 @@ class AttendanceDAO:
             cursor.execute(query, (days_worked, days_absent, attendance_id))
             conn.commit()
             return cursor.rowcount > 0
+
         finally:
             release_db_connection(conn)
 
     # DELETE ATTENDANCE
     def delete_attendance(self, attendance_id: int) -> bool:
+
         query = """
             DELETE FROM attendance
             WHERE attendance_id = %s
@@ -80,12 +101,20 @@ class AttendanceDAO:
         try:
             cursor.execute(query, (attendance_id,))
             conn.commit()
-            return cursor.rowcount > 0
+
+            deleted = cursor.rowcount > 0
+
         finally:
             release_db_connection(conn)
 
+        if deleted:
+            self._reset_auto_increment_if_empty()
+
+        return deleted
+
     # LIST ALL ATTENDANCE FOR EMPLOYEE
     def get_all_for_employee(self, emp_id: int):
+
         query = """
             SELECT *
             FROM attendance
@@ -99,5 +128,6 @@ class AttendanceDAO:
         try:
             cursor.execute(query, (emp_id,))
             return cursor.fetchall()
+
         finally:
             release_db_connection(conn)
