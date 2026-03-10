@@ -137,7 +137,6 @@ class DashboardWindow:
         ).pack()
 
     def open_employee_window(self):
-        self.root.withdraw()
         EmployeeManagerWindow(self.root, self.root)
 
     def open_attendance_window(self):
