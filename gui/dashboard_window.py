@@ -13,98 +13,128 @@ class DashboardWindow:
         self.on_logout = on_logout
 
         self.root.title("Payroll Management System - Dashboard")
-        self.root.geometry("900x600")
 
-        self._center_window(900, 600)
+        # Full screen
+        self.root.state("zoomed")
+
+        # Minimum window size
+        self.root.minsize(900, 600)
+
         self._setup_style()
         self._create_widgets()
 
-    def _center_window(self, width, height):
-        sw = self.root.winfo_screenwidth()
-        sh = self.root.winfo_screenheight()
-        x = (sw // 2) - (width // 2)
-        y = (sh // 2) - (height // 2)
-        self.root.geometry(f"{width}x{height}+{x}+{y}")
-
     def _setup_style(self):
+
         self.style = ttk.Style()
         self.style.theme_use("clam")
 
-        self.style.configure("Header.TFrame", background="#003366")
+        # main background
+        self.root.configure(bg="#eef2f7")
+
+        # header
+        self.style.configure(
+            "Header.TFrame",
+            background="#1f3c5b",
+        )
 
         self.style.configure(
             "Header.TLabel",
-            background="#003366",
+            background="#1f3c5b",
             foreground="white",
-            font=("Segoe UI", 18, "bold"),
+            font=("Segoe UI", 20, "bold"),
         )
 
         self.style.configure(
             "SubHeader.TLabel",
-            background="#003366",
-            foreground="white",
+            background="#1f3c5b",
+            foreground="#dce6f1",
             font=("Segoe UI", 11),
         )
 
-        self.style.configure("Dashboard.TButton", font=("Segoe UI", 12), padding=10)
-
+        # module buttons
         self.style.configure(
-            "Logout.TButton",
-            font=("Segoe UI", 11, "bold"),
-            foreground="white",
-            background="#ff6666",
+            "Dashboard.TButton", font=("Segoe UI", 13, "bold"), padding=18
         )
 
-        self.style.map("Logout.TButton", background=[("active", "#ff4d4d")])
+        # logout button
+        self.style.configure(
+            "Logout.TButton",
+            font=("Segoe UI", 12, "bold"),
+            foreground="white",
+            background="#e74c3c",
+            padding=12,
+        )
+
+        self.style.map("Logout.TButton", background=[("active", "#c0392b")])
 
     def _create_widgets(self):
+
         admin = self.auth_service.current_user
 
-        header = ttk.Frame(self.root, style="Header.TFrame", height=60)
+        # Header
+        header = ttk.Frame(self.root, style="Header.TFrame", height=70)
         header.pack(fill="x")
 
         ttk.Label(header, text="Payroll Management System", style="Header.TLabel").pack(
-            side="left", padx=20
+            side="left", padx=25
         )
 
         ttk.Label(
             header, text=f"Logged in as: {admin['username']}", style="SubHeader.TLabel"
-        ).pack(side="right", padx=20)
+        ).pack(side="right", padx=25)
 
-        card = ttk.Frame(self.root, padding=40, relief="solid")
-        card.pack(pady=60)
+        # Main container
+        container = ttk.Frame(self.root)
+        container.pack(expand=True)
 
+        # Card
+        card = ttk.Frame(container, padding=50, relief="ridge")
+        card.pack()
+
+        # Buttons
         ttk.Button(
             card,
             text="Manage Employees",
             style="Dashboard.TButton",
             command=self.open_employee_window,
-        ).grid(row=0, column=0, padx=40, pady=25)
+            width=25,
+        ).grid(row=0, column=0, padx=30, pady=30)
 
         ttk.Button(
             card,
             text="Generate Payroll",
             style="Dashboard.TButton",
             command=self.generate_payroll,
-        ).grid(row=0, column=1, padx=40, pady=25)
+            width=25,
+        ).grid(row=0, column=1, padx=30, pady=30)
 
         ttk.Button(
             card,
             text="Attendance",
             style="Dashboard.TButton",
             command=self.open_attendance_window,
-        ).grid(row=1, column=0, padx=40, pady=25)
+            width=25,
+        ).grid(row=1, column=0, padx=30, pady=30)
 
         ttk.Button(
             card,
             text="Salary Structure",
             style="Dashboard.TButton",
             command=self.open_salary_window,
-        ).grid(row=1, column=1, padx=40, pady=25)
+            width=25,
+        ).grid(row=1, column=1, padx=30, pady=30)
+
+        # Logout section
+        logout_frame = ttk.Frame(self.root)
+        logout_frame.pack(pady=20)
 
         ttk.Button(
-            self.root, text="Logout", style="Logout.TButton", command=self.logout
-        ).pack(pady=(10, 30))
+            logout_frame,
+            text="Logout",
+            style="Logout.TButton",
+            command=self.logout,
+            width=20,
+        ).pack()
 
     def open_employee_window(self):
         self.root.withdraw()
