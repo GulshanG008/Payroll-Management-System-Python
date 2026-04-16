@@ -138,6 +138,7 @@ class DashboardWindow:
         ).pack()
 
     def restore_window(self):
+        self._setup_style()
         self.root.state("zoomed")
         self.root.update_idletasks()
 
