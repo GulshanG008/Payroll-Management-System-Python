@@ -16,9 +16,6 @@ class PayrollWindow:
         self.window.state("zoomed")
         self.window.minsize(1000, 700)
 
-        self.window.transient(parent)
-        self.window.grab_set()
-
         self.employee_dao = EmployeeDAO()
         self.payroll_service = PayrollService()
 
@@ -59,6 +56,7 @@ class PayrollWindow:
 
     def _create_widgets(self):
 
+        # Header
         header = ttk.Frame(self.window, padding=12)
         header.pack(fill="x")
 
@@ -75,9 +73,11 @@ class PayrollWindow:
             style="Title.TLabel",
         ).pack(pady=(5, 15))
 
+        # Main Frame
         main_frame = ttk.Frame(self.window)
         main_frame.pack(fill="both", expand=True, padx=15, pady=10)
 
+        # Form
         form = ttk.Labelframe(
             main_frame,
             text="Generate Payroll",
@@ -169,6 +169,4 @@ class PayrollWindow:
     # ---------------- NAVIGATION ---------------- #
 
     def go_back(self):
-        self.window.grab_release()
         self.window.destroy()
-        self.dashboard_root.deiconify()

@@ -17,10 +17,6 @@ class EmployeeManagerWindow:
         self.root.state("zoomed")
         self.root.minsize(1000, 700)
 
-        # Make it behave like a modal window
-        self.root.transient(parent_root)
-        self.root.grab_set()
-
         self.dao = EmployeeDAO()
 
         self._setup_style()
@@ -29,6 +25,8 @@ class EmployeeManagerWindow:
 
         self.root.protocol("WM_DELETE_WINDOW", self.go_back)
 
+    # ---------------- STYLE ---------------- #
+
     def _setup_style(self):
         style = ttk.Style()
         style.theme_use("clam")
@@ -36,11 +34,9 @@ class EmployeeManagerWindow:
         style.configure("Title.TLabel", font=("Segoe UI", 20, "bold"))
 
         style.configure("Section.TLabelframe", padding=18)
-
         style.configure("Section.TLabelframe.Label", font=("Segoe UI", 12, "bold"))
 
         style.configure("TEntry", font=("Segoe UI", 11))
-
         style.configure("TCombobox", font=("Segoe UI", 11))
 
         style.configure("Action.TButton", font=("Segoe UI", 11, "bold"), padding=8)
@@ -56,8 +52,9 @@ class EmployeeManagerWindow:
         style.map("Danger.TButton", background=[("active", "#c9302c")])
 
         style.configure("Treeview", font=("Segoe UI", 11), rowheight=30)
-
         style.configure("Treeview.Heading", font=("Segoe UI", 12, "bold"))
+
+    # ---------------- UI ---------------- #
 
     def _create_widgets(self):
 
@@ -80,10 +77,10 @@ class EmployeeManagerWindow:
         main_frame = ttk.Frame(self.root)
         main_frame.pack(fill="both", expand=True, padx=15, pady=10)
 
+        # -------- FORM --------
         form = ttk.Labelframe(
             main_frame, text="Add Employee", style="Section.TLabelframe"
         )
-
         form.pack(side="left", fill="y", padx=(10, 25))
 
         labels = [
@@ -102,14 +99,15 @@ class EmployeeManagerWindow:
 
             if label == "Gender":
                 entry = ttk.Combobox(
-                    form, values=["Male", "Female", "Other"], state="readonly", width=28
+                    form,
+                    values=["Male", "Female", "Other"],
+                    state="readonly",
+                    width=28
                 )
-
             else:
                 entry = ttk.Entry(form, width=30)
 
             entry.grid(row=i, column=1, sticky="ew", pady=10)
-
             self.entries[label] = entry
 
         form.columnconfigure(1, weight=1)
@@ -121,6 +119,7 @@ class EmployeeManagerWindow:
             command=self.add_employee,
         ).grid(row=len(labels), column=0, columnspan=2, pady=(20, 0))
 
+        # -------- TABLE --------
         table_frame = ttk.Frame(main_frame)
         table_frame.pack(side="right", fill="both", expand=True)
 
@@ -130,23 +129,21 @@ class EmployeeManagerWindow:
         columns = ("ID", "Code", "Name", "Gender", "Contact", "Salary", "Status")
 
         self.tree = ttk.Treeview(tree_container, columns=columns, show="headings")
-
         self.tree.pack(side="left", fill="both", expand=True)
 
         vsb = ttk.Scrollbar(tree_container, orient="vertical", command=self.tree.yview)
-
         vsb.pack(side="right", fill="y")
 
         self.tree.configure(yscrollcommand=vsb.set)
 
         for col in columns:
             self.tree.heading(col, text=col)
-
             self.tree.column(col, anchor="center", width=120, stretch=True)
 
         self.tree.column("Name", width=220)
         self.tree.column("Code", width=150)
 
+        # Buttons
         button_bar = ttk.Frame(table_frame)
         button_bar.pack(fill="x", pady=10)
 
@@ -164,8 +161,9 @@ class EmployeeManagerWindow:
             command=self.delete_employee,
         ).pack(side="left", padx=5)
 
-    def load_employees(self):
+    # ---------------- DATA ---------------- #
 
+    def load_employees(self):
         self.tree.delete(*self.tree.get_children())
 
         for emp in self.dao.get_all_active():
@@ -183,8 +181,9 @@ class EmployeeManagerWindow:
                 ),
             )
 
-    def add_employee(self):
+    # ---------------- ACTIONS ---------------- #
 
+    def add_employee(self):
         try:
             emp_code = self.entries["Employee Code"].get().strip()
             full_name = self.entries["Full Name"].get().strip()
@@ -218,7 +217,6 @@ class EmployeeManagerWindow:
             messagebox.showerror("Error", str(e))
 
     def deactivate_employee(self):
-
         selected = self.tree.focus()
 
         if not selected:
@@ -235,7 +233,6 @@ class EmployeeManagerWindow:
             self.load_employees()
 
     def delete_employee(self):
-
         selected = self.tree.focus()
 
         if not selected:
@@ -253,10 +250,9 @@ class EmployeeManagerWindow:
             return
 
         self.dao.delete_employee(emp_id)
-
         self.load_employees()
 
-    def go_back(self):
+    # ---------------- NAVIGATION ---------------- #
 
-        self.root.grab_release()
+    def go_back(self):
         self.root.destroy()

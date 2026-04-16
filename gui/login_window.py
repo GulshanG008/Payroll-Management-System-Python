@@ -101,10 +101,14 @@ class LoginWindow:
         username = self.username_entry.get().strip()
         password = self.password_entry.get().strip()
 
-        if not username or not password:
-            messagebox.showerror(
-                "Login Error", "Please enter both username and password."
-            )
+        if not username:
+            messagebox.showerror("Login Error", "Enter username")
+            self.username_entry.focus()
+            return
+
+        if not password:
+            messagebox.showerror("Login Error", "Enter password")
+            self.password_entry.focus()
             return
 
         if self.auth_service.login_admin(username, password):
@@ -112,3 +116,5 @@ class LoginWindow:
             self.on_login_success()
         else:
             messagebox.showerror("Login Failed", "Invalid username or password.")
+            self.password_entry.delete(0, "end")
+            self.password_entry.focus()

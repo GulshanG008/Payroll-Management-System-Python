@@ -17,9 +17,6 @@ class SalaryWindow:
         self.window.state("zoomed")
         self.window.minsize(1000, 700)
 
-        self.window.transient(parent)
-        self.window.grab_set()
-
         self.salary_dao = SalaryDAO()
 
         self._setup_style()
@@ -61,7 +58,6 @@ class SalaryWindow:
 
     def _create_widgets(self):
 
-        # Header
         header = ttk.Frame(self.window, padding=12)
         header.pack(fill="x")
 
@@ -78,14 +74,13 @@ class SalaryWindow:
             style="Title.TLabel"
         ).pack(pady=(5, 15))
 
-        # Main layout
         main_frame = ttk.Frame(self.window)
         main_frame.pack(fill="both", expand=True, padx=15, pady=10)
 
         main_frame.columnconfigure(0, weight=1)
         main_frame.columnconfigure(1, weight=2)
 
-        # -------- FORM --------
+        # FORM
         form_frame = ttk.Labelframe(
             main_frame,
             text="Salary Details",
@@ -114,7 +109,6 @@ class SalaryWindow:
 
         form_frame.columnconfigure(1, weight=1)
 
-        # Buttons
         btn_frame = ttk.Frame(form_frame)
         btn_frame.grid(row=len(labels), column=0, columnspan=2, pady=20)
 
@@ -139,14 +133,13 @@ class SalaryWindow:
             command=self.clear_form
         ).pack(side="left", padx=5)
 
-        # -------- TABLE --------
+        # TABLE
         table_frame = ttk.Frame(main_frame)
         table_frame.grid(row=0, column=1, sticky="nsew")
 
         columns = ("ID", "Name", "Min", "Max", "HRA %", "Transport", "Tax %")
 
         self.tree = ttk.Treeview(table_frame, columns=columns, show="headings")
-
         self.tree.pack(side="left", fill="both", expand=True)
 
         scrollbar = ttk.Scrollbar(table_frame, orient="vertical", command=self.tree.yview)
@@ -189,7 +182,6 @@ class SalaryWindow:
 
             self.load_structures()
             self.clear_form()
-
             messagebox.showinfo("Success", "Added successfully")
 
         except Exception as e:
@@ -232,8 +224,6 @@ class SalaryWindow:
         for entry in self.entries.values():
             entry.delete(0, tk.END)
 
-    # ---------------- VALIDATION ---------------- #
-
     def _read_form(self, structure_id):
         try:
             name = self.entries["Name"].get().strip()
@@ -267,6 +257,4 @@ class SalaryWindow:
     # ---------------- NAVIGATION ---------------- #
 
     def go_back(self):
-        self.window.grab_release()
         self.window.destroy()
-        self.dashboard_root.deiconify()
