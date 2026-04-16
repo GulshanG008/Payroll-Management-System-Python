@@ -10,11 +10,11 @@ class EmployeeManagerWindow:
     def __init__(self, parent_root, dashboard_root):
         self.dashboard_root = dashboard_root
 
-        self.root = tk.Toplevel(parent_root)
-        self.root.title("Employee Management")
+        self.window = tk.Toplevel(parent_root)
+        self.window.title("Employee Management")
 
-        self.root.state("zoomed")
-        self.root.minsize(1000, 700)
+        self.window.state("zoomed")
+        self.window.minsize(1000, 700)
 
         self.dao = EmployeeDAO()
 
