@@ -149,8 +149,13 @@ class DashboardWindow:
         SalaryWindow(self.root, self.root)
 
     def generate_payroll(self):
-        self.root.withdraw()
-        PayrollWindow(self.root, self.root)
+        try:
+            print("CLICKED PAYROLL")
+            self.root.withdraw()
+            PayrollWindow(self.root, self.root)
+        except Exception as e:
+            print("ERROR:", e)
+            self.root.deiconify()
 
     def logout(self):
         if messagebox.askyesno("Confirm Logout", "Are you sure you want to logout?"):
