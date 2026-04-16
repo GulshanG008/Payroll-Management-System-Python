@@ -32,24 +32,71 @@ class AttendanceWindow:
 
     def _setup_style(self):
         style = ttk.Style()
-        style.theme_use("clam")
 
-        style.configure("Title.TLabel", font=("Segoe UI", 20, "bold"))
+        # Remove bluish theme
+        style.theme_use("default")
 
-        style.configure("Action.TButton", font=("Segoe UI", 11, "bold"), padding=8)
+        # Base UI
+        style.configure(".",
+            background="#f5f5f5",
+            foreground="#333333"
+        )
 
-        style.configure(
-            "Danger.TButton",
+        # Title
+        style.configure("Title.TLabel",
+            font=("Segoe UI", 20, "bold"),
+            background="#f5f5f5"
+        )
+
+        # Buttons
+        style.configure("Action.TButton",
+            font=("Segoe UI", 11, "bold"),
+            padding=8,
+            background="#e0e0e0"
+        )
+
+        style.map("Action.TButton",
+            background=[("active", "#d0d0d0")]
+        )
+
+        style.configure("Danger.TButton",
             font=("Segoe UI", 11, "bold"),
             padding=8,
             foreground="white",
-            background="#d9534f",
+            background="#d9534f"
         )
 
-        style.map("Danger.TButton", background=[("active", "#c9302c")])
+        style.map("Danger.TButton",
+            background=[("active", "#c9302c")]
+        )
 
-        style.configure("Treeview", font=("Segoe UI", 11), rowheight=30)
-        style.configure("Treeview.Heading", font=("Segoe UI", 12, "bold"))
+        # Inputs
+        style.configure("TEntry", fieldbackground="#ffffff")
+        style.configure("TCombobox", fieldbackground="#ffffff")
+
+        style.map("TEntry",
+            bordercolor=[("focus", "#999999")]
+        )
+
+        style.map("TCombobox",
+            bordercolor=[("focus", "#999999")]
+        )
+
+        # Table
+        style.configure("Treeview",
+            background="#ffffff",
+            fieldbackground="#ffffff",
+            rowheight=30
+        )
+
+        style.configure("Treeview.Heading",
+            font=("Segoe UI", 12, "bold")
+        )
+
+        style.map("Treeview",
+            background=[("selected", "#d6d6d6")],
+            foreground=[("selected", "#000000")]
+        )
 
     # ---------------- UI ---------------- #
 
@@ -101,26 +148,14 @@ class AttendanceWindow:
         btn_frame = ttk.Frame(self.window)
         btn_frame.pack(pady=15)
 
-        ttk.Button(
-            btn_frame,
-            text="Save Attendance",
-            style="Action.TButton",
-            command=self.save_attendance
-        ).pack(side="left", padx=10)
+        ttk.Button(btn_frame, text="Save Attendance", style="Action.TButton",
+                   command=self.save_attendance).pack(side="left", padx=10)
 
-        ttk.Button(
-            btn_frame,
-            text="Delete Attendance",
-            style="Danger.TButton",
-            command=self.delete_attendance
-        ).pack(side="left", padx=10)
+        ttk.Button(btn_frame, text="Delete Attendance", style="Danger.TButton",
+                   command=self.delete_attendance).pack(side="left", padx=10)
 
-        ttk.Button(
-            btn_frame,
-            text="Clear",
-            style="Action.TButton",
-            command=self.clear_form
-        ).pack(side="left", padx=10)
+        ttk.Button(btn_frame, text="Clear", style="Action.TButton",
+                   command=self.clear_form).pack(side="left", padx=10)
 
         table_frame = ttk.Frame(self.window)
         table_frame.pack(fill="both", expand=True, padx=10, pady=10)
@@ -190,7 +225,6 @@ class AttendanceWindow:
     # ---------------- ACTIONS ---------------- #
 
     def save_attendance(self):
-
         if not self.employee_combo.get():
             messagebox.showerror("Error", "Select employee")
             return
@@ -215,7 +249,6 @@ class AttendanceWindow:
             messagebox.showerror("Error", str(e))
 
     def delete_attendance(self):
-
         selected = self.tree.selection()
 
         if not selected:

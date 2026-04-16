@@ -13,7 +13,6 @@ class EmployeeManagerWindow:
         self.root = tk.Toplevel(parent_root)
         self.root.title("Employee Management")
 
-        # Full screen window
         self.root.state("zoomed")
         self.root.minsize(1000, 700)
 
@@ -29,30 +28,82 @@ class EmployeeManagerWindow:
 
     def _setup_style(self):
         style = ttk.Style()
-        style.theme_use("clam")
 
-        style.configure("Title.TLabel", font=("Segoe UI", 20, "bold"))
+        # ✅ REMOVE BLUE THEME
+        style.theme_use("default")
 
-        style.configure("Section.TLabelframe", padding=18)
-        style.configure("Section.TLabelframe.Label", font=("Segoe UI", 12, "bold"))
+        # Base colors
+        style.configure(".",
+            background="#f5f5f5",
+            foreground="#333333"
+        )
 
-        style.configure("TEntry", font=("Segoe UI", 11))
-        style.configure("TCombobox", font=("Segoe UI", 11))
+        # Title
+        style.configure("Title.TLabel",
+            font=("Segoe UI", 20, "bold"),
+            background="#f5f5f5"
+        )
 
-        style.configure("Action.TButton", font=("Segoe UI", 11, "bold"), padding=8)
+        # Section
+        style.configure("Section.TLabelframe",
+            background="#f5f5f5",
+            padding=18
+        )
 
-        style.configure(
-            "Danger.TButton",
+        style.configure("Section.TLabelframe.Label",
+            font=("Segoe UI", 12, "bold"),
+            background="#f5f5f5"
+        )
+
+        # Inputs
+        style.configure("TEntry", fieldbackground="#ffffff")
+        style.configure("TCombobox", fieldbackground="#ffffff")
+
+        style.map("TEntry",
+            bordercolor=[("focus", "#999999")]
+        )
+
+        style.map("TCombobox",
+            bordercolor=[("focus", "#999999")]
+        )
+
+        # Buttons
+        style.configure("Action.TButton",
+            font=("Segoe UI", 11, "bold"),
+            padding=8,
+            background="#e0e0e0"
+        )
+
+        style.map("Action.TButton",
+            background=[("active", "#d0d0d0")]
+        )
+
+        style.configure("Danger.TButton",
             font=("Segoe UI", 11, "bold"),
             padding=8,
             foreground="white",
-            background="#d9534f",
+            background="#d9534f"
         )
 
-        style.map("Danger.TButton", background=[("active", "#c9302c")])
+        style.map("Danger.TButton",
+            background=[("active", "#c9302c")]
+        )
 
-        style.configure("Treeview", font=("Segoe UI", 11), rowheight=30)
-        style.configure("Treeview.Heading", font=("Segoe UI", 12, "bold"))
+        # Table
+        style.configure("Treeview",
+            background="#ffffff",
+            fieldbackground="#ffffff",
+            rowheight=30
+        )
+
+        style.configure("Treeview.Heading",
+            font=("Segoe UI", 12, "bold")
+        )
+
+        style.map("Treeview",
+            background=[("selected", "#d6d6d6")],
+            foreground=[("selected", "#000000")]
+        )
 
     # ---------------- UI ---------------- #
 
@@ -225,10 +276,8 @@ class EmployeeManagerWindow:
 
         emp_id = self.tree.item(selected)["values"][0]
 
-        if messagebox.askyesno(
-            "Confirm Deactivation",
-            "Deactivate this employee?\n\nThey will no longer appear in payroll.",
-        ):
+        if messagebox.askyesno("Confirm Deactivation",
+                              "Deactivate this employee?\n\nThey will no longer appear in payroll."):
             self.dao.deactivate_employee(emp_id)
             self.load_employees()
 
@@ -241,12 +290,9 @@ class EmployeeManagerWindow:
 
         emp_id = self.tree.item(selected)["values"][0]
 
-        if not messagebox.askyesno(
-            "Confirm Permanent Deletion",
-            "This will permanently delete the employee record.\n\n"
-            "This action cannot be undone.\n\n"
-            "Do you want to continue?",
-        ):
+        if not messagebox.askyesno("Confirm Permanent Deletion",
+                                  "This will permanently delete the employee record.\n\n"
+                                  "This action cannot be undone.\n\nDo you want to continue?"):
             return
 
         self.dao.delete_employee(emp_id)
