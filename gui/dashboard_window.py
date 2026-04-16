@@ -137,15 +137,19 @@ class DashboardWindow:
         ).pack()
 
     def open_employee_window(self):
+        self.root.withdraw()
         EmployeeManagerWindow(self.root, self.root)
 
     def open_attendance_window(self):
-        AttendanceWindow(self.root)
+        self.root.withdraw()
+        AttendanceWindow(self.root, self.root)
 
     def open_salary_window(self):
+        self.root.withdraw()
         SalaryWindow(self.root)
 
     def generate_payroll(self):
+        self.root.withdraw()
         PayrollWindow(self.root)
 
     def logout(self):

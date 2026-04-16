@@ -7,8 +7,9 @@ from services.attendance_service import AttendanceService
 
 
 class AttendanceWindow:
-    def __init__(self, parent):
+    def __init__(self, parent, dashboard_root):
         self.parent = parent
+        self.dashboard_root = dashboard_root
 
         self.window = tk.Toplevel(parent)
         self.window.title("Employee Attendance")
@@ -21,50 +22,83 @@ class AttendanceWindow:
         self.employee_dao = EmployeeDAO()
         self.attendance_service = AttendanceService()
 
+        self._setup_style()
         self._create_widgets()
+
         self.load_employees()
         self.load_attendance()
 
+        self.window.protocol("WM_DELETE_WINDOW", self.go_back)
+
+    # ---------------- STYLE ---------------- #
+
+    def _setup_style(self):
+        style = ttk.Style()
+        style.theme_use("clam")
+
+        style.configure("Title.TLabel", font=("Segoe UI", 20, "bold"))
+
+        style.configure("Action.TButton", font=("Segoe UI", 11, "bold"), padding=8)
+
+        style.configure(
+            "Danger.TButton",
+            font=("Segoe UI", 11, "bold"),
+            padding=8,
+            foreground="white",
+            background="#d9534f",
+        )
+
+        style.map("Danger.TButton", background=[("active", "#c9302c")])
+
+        style.configure("Treeview", font=("Segoe UI", 11), rowheight=30)
+        style.configure("Treeview.Heading", font=("Segoe UI", 12, "bold"))
+
+    # ---------------- UI ---------------- #
+
     def _create_widgets(self):
 
-        tk.Label(
-            self.window, text="Employee Attendance", font=("Arial", 16, "bold")
-        ).pack(pady=15)
+        header = ttk.Frame(self.window, padding=12)
+        header.pack(fill="x")
 
-        # 🔙 Back Button
-        tk.Button(
+        ttk.Button(
+            header,
+            text="⬅ Back to Dashboard",
+            style="Action.TButton",
+            command=self.go_back,
+        ).pack(anchor="w")
+
+        ttk.Label(
             self.window,
-            text="Back to Dashboard",
-            width=20,
-            command=self.go_back
-        ).pack(pady=5)
+            text="Employee Attendance",
+            style="Title.TLabel",
+        ).pack(pady=(5, 15))
 
-        form = tk.Frame(self.window)
+        form = ttk.Frame(self.window)
         form.pack(pady=10)
 
         # Employee
-        tk.Label(form, text="Employee").grid(row=0, column=0, pady=8, sticky="e")
+        ttk.Label(form, text="Employee").grid(row=0, column=0, pady=8, sticky="e")
 
         self.employee_combo = ttk.Combobox(form, width=30, state="readonly")
         self.employee_combo.grid(row=0, column=1, pady=8)
 
-        # Month-Year (YYYY-MM)
-        tk.Label(form, text="Month (YYYY-MM)").grid(row=1, column=0, pady=8, sticky="e")
+        # Month-Year
+        ttk.Label(form, text="Month (YYYY-MM)").grid(row=1, column=0, pady=8, sticky="e")
 
-        self.month_entry = tk.Entry(form, width=33)
+        self.month_entry = ttk.Entry(form, width=33)
         self.month_entry.grid(row=1, column=1, pady=8)
         self.month_entry.insert(0, "2025-03")
 
         # Days Worked
-        tk.Label(form, text="Days Worked").grid(row=2, column=0, pady=8, sticky="e")
+        ttk.Label(form, text="Days Worked").grid(row=2, column=0, pady=8, sticky="e")
 
-        self.days_worked_entry = tk.Entry(form, width=33)
+        self.days_worked_entry = ttk.Entry(form, width=33)
         self.days_worked_entry.grid(row=2, column=1, pady=8)
 
-        # Days Absent (AUTO)
-        tk.Label(form, text="Days Absent (Auto)").grid(row=3, column=0, pady=8, sticky="e")
+        # Days Absent
+        ttk.Label(form, text="Days Absent (Auto)").grid(row=3, column=0, pady=8, sticky="e")
 
-        self.days_absent_entry = tk.Entry(form, width=33, state="readonly")
+        self.days_absent_entry = ttk.Entry(form, width=33, state="readonly")
         self.days_absent_entry.grid(row=3, column=1, pady=8)
 
         # Bind auto calculation
@@ -72,32 +106,32 @@ class AttendanceWindow:
         self.month_entry.bind("<KeyRelease>", lambda e: self.calculate_absent_days())
 
         # Buttons
-        btn_frame = tk.Frame(self.window)
+        btn_frame = ttk.Frame(self.window)
         btn_frame.pack(pady=15)
 
-        tk.Button(
+        ttk.Button(
             btn_frame,
             text="Save Attendance",
-            width=18,
+            style="Action.TButton",
             command=self.save_attendance
         ).pack(side="left", padx=10)
 
-        tk.Button(
+        ttk.Button(
             btn_frame,
             text="Delete Attendance",
-            width=18,
+            style="Danger.TButton",
             command=self.delete_attendance
         ).pack(side="left", padx=10)
 
-        tk.Button(
+        ttk.Button(
             btn_frame,
             text="Clear",
-            width=18,
+            style="Action.TButton",
             command=self.clear_form
         ).pack(side="left", padx=10)
 
         # Table
-        table_frame = tk.Frame(self.window)
+        table_frame = ttk.Frame(self.window)
         table_frame.pack(fill="both", expand=True, padx=10, pady=10)
 
         columns = ("ID", "Employee", "Month", "Worked", "Absent")
@@ -134,7 +168,7 @@ class AttendanceWindow:
             self.days_absent_entry.delete(0, tk.END)
             self.days_absent_entry.config(state="readonly")
 
-    # ---------------- DATA LOAD ---------------- #
+    # ---------------- DATA ---------------- #
 
     def load_employees(self):
         self.employees = self.employee_dao.get_all_active()
@@ -216,5 +250,9 @@ class AttendanceWindow:
         self.days_absent_entry.delete(0, tk.END)
         self.days_absent_entry.config(state="readonly")
 
+    # ---------------- NAVIGATION ---------------- #
+
     def go_back(self):
+        self.window.grab_release()
         self.window.destroy()
+        self.dashboard_root.deiconify()
