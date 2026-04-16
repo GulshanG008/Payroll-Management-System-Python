@@ -1,7 +1,8 @@
-CREATE DATABASE IF NOT EXISTS payroll_management;
+DROP DATABASE IF EXISTS payroll_management;
+CREATE DATABASE payroll_management;
 USE payroll_management;
 
--- ADMIN TABLE (Authentication)
+-- ADMIN TABLE
 CREATE TABLE admin (
     admin_id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(50) NOT NULL UNIQUE,
@@ -9,7 +10,7 @@ CREATE TABLE admin (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- SALARY STRUCTURE TABLE (Pay Grades)
+-- SALARY STRUCTURE TABLE
 CREATE TABLE salary_structure (
     structure_id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(50) NOT NULL,
@@ -29,60 +30,74 @@ CREATE TABLE employee (
     full_name VARCHAR(100) NOT NULL,
     gender ENUM('Male', 'Female', 'Other'),
     contact_no VARCHAR(15),
-    email VARCHAR(100),
+    email VARCHAR(100) UNIQUE,
     date_of_joining DATE NOT NULL,
     basic_salary DECIMAL(10,2) NOT NULL,
     structure_id INT,
     status ENUM('ACTIVE', 'INACTIVE') DEFAULT 'ACTIVE',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
     CONSTRAINT fk_employee_structure
         FOREIGN KEY (structure_id)
         REFERENCES salary_structure(structure_id)
         ON DELETE SET NULL
 );
 
--- Reset auto-increment to 1 (safe if table is empty)
-ALTER TABLE employee AUTO_INCREMENT = 1;
+-- Index for performance
+CREATE INDEX idx_employee_structure ON employee(structure_id);
 
 -- ATTENDANCE TABLE
 CREATE TABLE attendance (
     attendance_id INT AUTO_INCREMENT PRIMARY KEY,
     emp_id INT NOT NULL,
-    month_year DATE NOT NULL,
+    month TINYINT NOT NULL,
+    year SMALLINT NOT NULL,
     days_worked INT NOT NULL,
-    days_absent INT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
     CHECK (days_worked >= 0),
-    CHECK (days_absent >= 0),
-    CHECK (days_worked + days_absent <= 31),
+    CHECK (days_worked <= 31),
+
     CONSTRAINT fk_attendance_employee
         FOREIGN KEY (emp_id)
         REFERENCES employee(emp_id)
         ON DELETE CASCADE,
-    UNIQUE (emp_id, month_year)
+
+    UNIQUE (emp_id, month, year)
 );
+
+-- Index
+CREATE INDEX idx_attendance_emp ON attendance(emp_id);
 
 -- PAYROLL TABLE
 CREATE TABLE payroll (
     payroll_id INT AUTO_INCREMENT PRIMARY KEY,
     emp_id INT NOT NULL,
-    month_year DATE NOT NULL,
-    basic_salary DECIMAL(10,2),
-    hra DECIMAL(10,2),
-    da DECIMAL(10,2),
-    transport_allowance DECIMAL(10,2),
-    pf DECIMAL(10,2),
-    tax DECIMAL(10,2),
-    gross_salary DECIMAL(10,2),
-    net_salary DECIMAL(10,2),
+    month TINYINT NOT NULL,
+    year SMALLINT NOT NULL,
+
+    basic_salary DECIMAL(10,2) NOT NULL,
+    hra DECIMAL(10,2) NOT NULL,
+    da DECIMAL(10,2) NOT NULL,
+    transport_allowance DECIMAL(10,2) NOT NULL,
+    pf DECIMAL(10,2) NOT NULL,
+    tax DECIMAL(10,2) NOT NULL,
+    gross_salary DECIMAL(10,2) NOT NULL,
+    net_salary DECIMAL(10,2) NOT NULL,
+
     pdf_path VARCHAR(255),
     generated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
     CONSTRAINT fk_payroll_employee
         FOREIGN KEY (emp_id)
         REFERENCES employee(emp_id)
         ON DELETE CASCADE,
-    UNIQUE (emp_id, month_year)
+
+    UNIQUE (emp_id, month, year)
 );
+
+-- Index
+CREATE INDEX idx_payroll_emp ON payroll(emp_id);
 
 -- SAMPLE ADMIN USER
 INSERT INTO admin (username, password_hash)
