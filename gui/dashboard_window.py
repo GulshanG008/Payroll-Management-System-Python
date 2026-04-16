@@ -146,11 +146,11 @@ class DashboardWindow:
 
     def open_salary_window(self):
         self.root.withdraw()
-        SalaryWindow(self.root)
+        SalaryWindow(self.root, self.root)
 
     def generate_payroll(self):
         self.root.withdraw()
-        PayrollWindow(self.root)
+        PayrollWindow(self.root, self.root)
 
     def logout(self):
         if messagebox.askyesno("Confirm Logout", "Are you sure you want to logout?"):
