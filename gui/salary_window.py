@@ -29,30 +29,82 @@ class SalaryWindow:
 
     def _setup_style(self):
         style = ttk.Style()
-        style.theme_use("clam")
 
-        style.configure("Title.TLabel", font=("Segoe UI", 20, "bold"))
+        # ✅ REMOVE BLUE THEME
+        style.theme_use("default")
 
-        style.configure("Section.TLabelframe", padding=18)
-        style.configure("Section.TLabelframe.Label", font=("Segoe UI", 12, "bold"))
+        # Base
+        style.configure(".",
+            background="#f5f5f5",
+            foreground="#333333"
+        )
 
-        style.configure("TEntry", font=("Segoe UI", 11))
-        style.configure("TButton", font=("Segoe UI", 11), padding=6)
+        # Title
+        style.configure("Title.TLabel",
+            font=("Segoe UI", 20, "bold"),
+            background="#f5f5f5"
+        )
 
-        style.configure("Action.TButton", font=("Segoe UI", 11, "bold"), padding=8)
+        # Section
+        style.configure("Section.TLabelframe",
+            background="#f5f5f5",
+            padding=18
+        )
 
-        style.configure(
-            "Danger.TButton",
+        style.configure("Section.TLabelframe.Label",
+            font=("Segoe UI", 12, "bold"),
+            background="#f5f5f5"
+        )
+
+        # Inputs
+        style.configure("TEntry", fieldbackground="#ffffff")
+        style.configure("TCombobox", fieldbackground="#ffffff")
+
+        style.map("TEntry",
+            bordercolor=[("focus", "#999999")]
+        )
+
+        style.map("TCombobox",
+            bordercolor=[("focus", "#999999")]
+        )
+
+        # Buttons
+        style.configure("Action.TButton",
+            font=("Segoe UI", 11, "bold"),
+            padding=8,
+            background="#e0e0e0"
+        )
+
+        style.map("Action.TButton",
+            background=[("active", "#d0d0d0")]
+        )
+
+        style.configure("Danger.TButton",
             font=("Segoe UI", 11, "bold"),
             padding=8,
             foreground="white",
-            background="#d9534f",
+            background="#d9534f"
         )
 
-        style.map("Danger.TButton", background=[("active", "#c9302c")])
+        style.map("Danger.TButton",
+            background=[("active", "#c9302c")]
+        )
 
-        style.configure("Treeview", font=("Segoe UI", 11), rowheight=30)
-        style.configure("Treeview.Heading", font=("Segoe UI", 12, "bold"))
+        # Table
+        style.configure("Treeview",
+            background="#ffffff",
+            fieldbackground="#ffffff",
+            rowheight=30
+        )
+
+        style.configure("Treeview.Heading",
+            font=("Segoe UI", 12, "bold")
+        )
+
+        style.map("Treeview",
+            background=[("selected", "#d6d6d6")],
+            foreground=[("selected", "#000000")]
+        )
 
     # ---------------- UI ---------------- #
 
@@ -112,26 +164,14 @@ class SalaryWindow:
         btn_frame = ttk.Frame(form_frame)
         btn_frame.grid(row=len(labels), column=0, columnspan=2, pady=20)
 
-        ttk.Button(
-            btn_frame,
-            text="Add",
-            style="Action.TButton",
-            command=self.add_structure
-        ).pack(side="left", padx=5)
+        ttk.Button(btn_frame, text="Add", style="Action.TButton",
+                   command=self.add_structure).pack(side="left", padx=5)
 
-        ttk.Button(
-            btn_frame,
-            text="Update",
-            style="Action.TButton",
-            command=self.update_structure
-        ).pack(side="left", padx=5)
+        ttk.Button(btn_frame, text="Update", style="Action.TButton",
+                   command=self.update_structure).pack(side="left", padx=5)
 
-        ttk.Button(
-            btn_frame,
-            text="Clear",
-            style="Danger.TButton",
-            command=self.clear_form
-        ).pack(side="left", padx=5)
+        ttk.Button(btn_frame, text="Clear", style="Danger.TButton",
+                   command=self.clear_form).pack(side="left", padx=5)
 
         # TABLE
         table_frame = ttk.Frame(main_frame)

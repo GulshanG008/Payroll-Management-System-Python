@@ -30,33 +30,71 @@ class PayrollWindow:
 
     def _setup_style(self):
         style = ttk.Style()
-        style.theme_use("clam")
 
-        style.configure("Title.TLabel", font=("Segoe UI", 20, "bold"))
+        # ✅ REMOVE BLUE THEME
+        style.theme_use("default")
 
-        style.configure("Section.TLabelframe", padding=18)
-        style.configure("Section.TLabelframe.Label", font=("Segoe UI", 12, "bold"))
+        # Base colors
+        style.configure(".",
+            background="#f5f5f5",
+            foreground="#333333"
+        )
 
-        style.configure("TEntry", font=("Segoe UI", 11))
-        style.configure("TCombobox", font=("Segoe UI", 11))
+        # Title
+        style.configure("Title.TLabel",
+            font=("Segoe UI", 20, "bold"),
+            background="#f5f5f5"
+        )
 
-        style.configure("Action.TButton", font=("Segoe UI", 11, "bold"), padding=8)
+        # Section
+        style.configure("Section.TLabelframe",
+            background="#f5f5f5",
+            padding=18
+        )
 
-        style.configure(
-            "Danger.TButton",
+        style.configure("Section.TLabelframe.Label",
+            font=("Segoe UI", 12, "bold"),
+            background="#f5f5f5"
+        )
+
+        # Inputs
+        style.configure("TEntry", fieldbackground="#ffffff")
+        style.configure("TCombobox", fieldbackground="#ffffff")
+
+        style.map("TEntry",
+            bordercolor=[("focus", "#999999")]
+        )
+
+        style.map("TCombobox",
+            bordercolor=[("focus", "#999999")]
+        )
+
+        # Buttons
+        style.configure("Action.TButton",
+            font=("Segoe UI", 11, "bold"),
+            padding=8,
+            background="#e0e0e0"
+        )
+
+        style.map("Action.TButton",
+            background=[("active", "#d0d0d0")]
+        )
+
+        style.configure("Danger.TButton",
             font=("Segoe UI", 11, "bold"),
             padding=8,
             foreground="white",
-            background="#d9534f",
+            background="#d9534f"
         )
 
-        style.map("Danger.TButton", background=[("active", "#c9302c")])
+        style.map("Danger.TButton",
+            background=[("active", "#c9302c")]
+        )
 
     # ---------------- UI ---------------- #
 
     def _create_widgets(self):
 
-        # Header
         header = ttk.Frame(self.window, padding=12)
         header.pack(fill="x")
 
@@ -73,11 +111,9 @@ class PayrollWindow:
             style="Title.TLabel",
         ).pack(pady=(5, 15))
 
-        # Main Frame
         main_frame = ttk.Frame(self.window)
         main_frame.pack(fill="both", expand=True, padx=15, pady=10)
 
-        # Form
         form = ttk.Labelframe(
             main_frame,
             text="Generate Payroll",
@@ -85,7 +121,6 @@ class PayrollWindow:
         )
         form.pack(pady=20)
 
-        # Employee
         ttk.Label(form, text="Employee").grid(row=0, column=0, sticky="w", pady=10)
 
         self.employee_combo = ttk.Combobox(
@@ -95,7 +130,6 @@ class PayrollWindow:
         )
         self.employee_combo.grid(row=0, column=1, pady=10)
 
-        # Month-Year
         ttk.Label(form, text="Month-Year").grid(row=1, column=0, sticky="w", pady=10)
 
         self.month_entry = ttk.Entry(form, width=30)
@@ -104,7 +138,6 @@ class PayrollWindow:
 
         form.columnconfigure(1, weight=1)
 
-        # Buttons
         btn_frame = ttk.Frame(form)
         btn_frame.grid(row=2, column=0, columnspan=2, pady=20)
 

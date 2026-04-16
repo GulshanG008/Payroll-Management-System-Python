@@ -16,6 +16,7 @@ class LoginWindow:
         self.on_login_success = on_login_success
 
         self.root.title("Payroll Management Admin Login")
+        self.root.state("normal")
         self.root.geometry("500x400")
         self.root.resizable(False, False)
 
