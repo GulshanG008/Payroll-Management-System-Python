@@ -29,7 +29,6 @@ class EmployeeManagerWindow:
     def _setup_style(self):
         style = ttk.Style()
 
-        # ✅ REMOVE BLUE THEME
         style.theme_use("default")
 
         # Base colors
@@ -68,14 +67,15 @@ class EmployeeManagerWindow:
         )
 
         # Buttons
-        style.configure("Action.TButton",
+        style.configure("Success.TButton",
             font=("Segoe UI", 11, "bold"),
             padding=8,
-            background="#e0e0e0"
+            foreground="white",
+            background="#28a745"
         )
 
-        style.map("Action.TButton",
-            background=[("active", "#d0d0d0")]
+        style.map("Success.TButton",
+            background=[("active", "#218838")]
         )
 
         style.configure("Danger.TButton",
@@ -166,7 +166,7 @@ class EmployeeManagerWindow:
         ttk.Button(
             form,
             text="Add Employee",
-            style="Action.TButton",
+            style="Success.TButton",
             command=self.add_employee,
         ).grid(row=len(labels), column=0, columnspan=2, pady=(20, 0))
 

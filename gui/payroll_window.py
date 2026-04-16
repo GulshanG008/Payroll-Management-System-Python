@@ -70,14 +70,15 @@ class PayrollWindow:
         )
 
         # Buttons
-        style.configure("Action.TButton",
+        style.configure("Success.TButton",
             font=("Segoe UI", 11, "bold"),
             padding=8,
-            background="#e0e0e0"
+            foreground="white",
+            background="#28a745"   
         )
 
-        style.map("Action.TButton",
-            background=[("active", "#d0d0d0")]
+        style.map("Success.TButton",
+            background=[("active", "#218838")]  
         )
 
         style.configure("Danger.TButton",
@@ -144,7 +145,7 @@ class PayrollWindow:
         ttk.Button(
             btn_frame,
             text="Generate Payslip",
-            style="Action.TButton",
+            style="Success.TButton",
             command=self.generate_payroll
         ).pack(side="left", padx=10)
 

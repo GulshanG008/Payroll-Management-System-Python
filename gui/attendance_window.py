@@ -49,14 +49,15 @@ class AttendanceWindow:
         )
 
         # Buttons
-        style.configure("Action.TButton",
+        style.configure("Success.TButton",
             font=("Segoe UI", 11, "bold"),
             padding=8,
-            background="#e0e0e0"
-        )
+            foreground="white",
+            background="#28a745"
+            )
 
-        style.map("Action.TButton",
-            background=[("active", "#d0d0d0")]
+        style.map("Success.TButton",
+            background=[("active", "#218838")]
         )
 
         style.configure("Danger.TButton",
@@ -148,7 +149,7 @@ class AttendanceWindow:
         btn_frame = ttk.Frame(self.window)
         btn_frame.pack(pady=15)
 
-        ttk.Button(btn_frame, text="Save Attendance", style="Action.TButton",
+        ttk.Button(btn_frame, text="Save Attendance", style="Success.TButton",
                    command=self.save_attendance).pack(side="left", padx=10)
 
         ttk.Button(btn_frame, text="Delete Attendance", style="Danger.TButton",
