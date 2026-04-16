@@ -7,8 +7,9 @@ from services.attendance_service import AttendanceService
 
 
 class AttendanceWindow:
-    def __init__(self, parent):
+    def __init__(self, parent, dashboard_root):
         self.parent = parent
+        self.dashboard_root = dashboard_root
 
         self.window = tk.Toplevel(parent)
         self.window.title("Employee Attendance")

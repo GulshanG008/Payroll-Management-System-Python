@@ -8,6 +8,7 @@ from database.employee_dao import EmployeeDAO
 
 class EmployeeManagerWindow:
     def __init__(self, parent_root, dashboard_root):
+        self.parent_root = parent_root
         self.dashboard_root = dashboard_root
 
         self.window = tk.Toplevel(parent_root)
@@ -109,7 +110,7 @@ class EmployeeManagerWindow:
 
     def _create_widgets(self):
 
-        header = ttk.Frame(self.root, padding=12)
+        header = ttk.Frame(self.window, padding=12)
         header.pack(fill="x")
 
         ttk.Button(
