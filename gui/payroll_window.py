@@ -6,126 +6,123 @@ from services.payroll_service import PayrollService
 
 
 class PayrollWindow:
-    def __init__(self, parent):
+    def __init__(self, parent, dashboard_root):
         self.parent = parent
+        self.dashboard_root = dashboard_root
 
         self.window = tk.Toplevel(parent)
         self.window.title("Payroll Generation")
+
         self.window.state("zoomed")
-        self.window.configure(bg="#eef2f7")
+        self.window.minsize(1000, 700)
+
+        self.window.transient(parent)
+        self.window.grab_set()
 
         self.employee_dao = EmployeeDAO()
         self.payroll_service = PayrollService()
 
         self._setup_style()
         self._create_widgets()
+
         self.load_employees()
+
+        self.window.protocol("WM_DELETE_WINDOW", self.go_back)
+
+    # ---------------- STYLE ---------------- #
 
     def _setup_style(self):
         style = ttk.Style()
+        style.theme_use("clam")
 
-        style.theme_use("default")
+        style.configure("Title.TLabel", font=("Segoe UI", 20, "bold"))
+
+        style.configure("Section.TLabelframe", padding=18)
+        style.configure("Section.TLabelframe.Label", font=("Segoe UI", 12, "bold"))
+
+        style.configure("TEntry", font=("Segoe UI", 11))
+        style.configure("TCombobox", font=("Segoe UI", 11))
+
+        style.configure("Action.TButton", font=("Segoe UI", 11, "bold"), padding=8)
 
         style.configure(
-            "TCombobox",
-            padding=6,
-            font=("Segoe UI", 11)
+            "Danger.TButton",
+            font=("Segoe UI", 11, "bold"),
+            padding=8,
+            foreground="white",
+            background="#d9534f",
         )
 
-        style.configure(
-            "TEntry",
-            padding=6,
-            font=("Segoe UI", 11)
-        )
+        style.map("Danger.TButton", background=[("active", "#c9302c")])
+
+    # ---------------- UI ---------------- #
 
     def _create_widgets(self):
 
-        # Main container
-        container = tk.Frame(self.window, bg="#eef2f7")
-        container.pack(expand=True)
+        header = ttk.Frame(self.window, padding=12)
+        header.pack(fill="x")
 
-        # Card
-        card = tk.Frame(
-            container,
-            bg="white",
-            padx=50,
-            pady=40,
-            bd=0,
-            highlightthickness=1,
-            highlightbackground="#dcdde1"
-        )
-        card.pack()
+        ttk.Button(
+            header,
+            text="⬅ Back to Dashboard",
+            style="Action.TButton",
+            command=self.go_back,
+        ).pack(anchor="w")
 
-        # Title
-        title = tk.Label(
-            card,
+        ttk.Label(
+            self.window,
             text="Payroll Generation",
-            font=("Segoe UI", 22, "bold"),
-            bg="white",
-            fg="#2f3640"
-        )
-        title.grid(row=0, column=0, columnspan=2, pady=(0, 30))
+            style="Title.TLabel",
+        ).pack(pady=(5, 15))
 
-        label_font = ("Segoe UI", 12)
-        entry_font = ("Segoe UI", 11)
+        main_frame = ttk.Frame(self.window)
+        main_frame.pack(fill="both", expand=True, padx=15, pady=10)
+
+        form = ttk.Labelframe(
+            main_frame,
+            text="Generate Payroll",
+            style="Section.TLabelframe"
+        )
+        form.pack(pady=20)
 
         # Employee
-        tk.Label(card, text="Employee", font=label_font, bg="white").grid(
-            row=1, column=0, sticky="e", pady=10, padx=10
-        )
+        ttk.Label(form, text="Employee").grid(row=0, column=0, sticky="w", pady=10)
 
         self.employee_combo = ttk.Combobox(
-            card,
-            width=35,
-            font=entry_font,
+            form,
+            width=30,
             state="readonly"
         )
-        self.employee_combo.grid(row=1, column=1, pady=10, ipady=3)
+        self.employee_combo.grid(row=0, column=1, pady=10)
 
         # Month-Year
-        tk.Label(card, text="Month-Year", font=label_font, bg="white").grid(
-            row=2, column=0, sticky="e", pady=10, padx=10
-        )
+        ttk.Label(form, text="Month-Year").grid(row=1, column=0, sticky="w", pady=10)
 
-        self.month_entry = ttk.Entry(card, width=37)
-        self.month_entry.grid(row=2, column=1, pady=10, ipady=3)
-        self.month_entry.insert(0, "March-2025")
+        self.month_entry = ttk.Entry(form, width=30)
+        self.month_entry.grid(row=1, column=1, pady=10)
+        self.month_entry.insert(0, "2025-03")
+
+        form.columnconfigure(1, weight=1)
 
         # Buttons
-        btn_frame = tk.Frame(card, bg="white")
-        btn_frame.grid(row=3, column=0, columnspan=2, pady=30)
+        btn_frame = ttk.Frame(form)
+        btn_frame.grid(row=2, column=0, columnspan=2, pady=20)
 
-        generate_btn = tk.Button(
+        ttk.Button(
             btn_frame,
             text="Generate Payslip",
-            font=("Segoe UI", 12, "bold"),
-            bg="#4cd137",
-            fg="white",
-            activebackground="#44bd32",
-            activeforeground="white",
-            width=18,
-            height=2,
-            bd=0,
-            cursor="hand2",
+            style="Action.TButton",
             command=self.generate_payroll
-        )
-        generate_btn.pack(side="left", padx=10)
+        ).pack(side="left", padx=10)
 
-        back_btn = tk.Button(
+        ttk.Button(
             btn_frame,
             text="Back",
-            font=("Segoe UI", 12, "bold"),
-            bg="#e84118",
-            fg="white",
-            activebackground="#c23616",
-            activeforeground="white",
-            width=14,
-            height=2,
-            bd=0,
-            cursor="hand2",
+            style="Danger.TButton",
             command=self.go_back
-        )
-        back_btn.pack(side="left", padx=10)
+        ).pack(side="left", padx=10)
+
+    # ---------------- DATA ---------------- #
 
     def load_employees(self):
         self.employees = self.employee_dao.get_all_active()
@@ -138,6 +135,8 @@ class PayrollWindow:
 
         if display_list:
             self.employee_combo.current(0)
+
+    # ---------------- ACTIONS ---------------- #
 
     def generate_payroll(self):
 
@@ -167,5 +166,9 @@ class PayrollWindow:
         except Exception as e:
             messagebox.showerror("Error", str(e))
 
+    # ---------------- NAVIGATION ---------------- #
+
     def go_back(self):
+        self.window.grab_release()
         self.window.destroy()
+        self.dashboard_root.deiconify()

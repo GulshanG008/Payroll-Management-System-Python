@@ -1,5 +1,3 @@
-# gui/salary_window.py
-
 import tkinter as tk
 from tkinter import ttk, messagebox
 from decimal import Decimal, InvalidOperation
@@ -9,38 +7,91 @@ from models.salary_structure import SalaryStructure
 
 
 class SalaryWindow:
-    def __init__(self, parent):
+    def __init__(self, parent, dashboard_root):
+        self.parent = parent
+        self.dashboard_root = dashboard_root
+
         self.window = tk.Toplevel(parent)
         self.window.title("Salary Structure")
-        self.window.geometry("920x560")
-        self.window.resizable(False, False)
+
+        self.window.state("zoomed")
+        self.window.minsize(1000, 700)
+
+        self.window.transient(parent)
+        self.window.grab_set()
 
         self.salary_dao = SalaryDAO()
 
+        self._setup_style()
         self._create_widgets()
         self.load_structures()
 
-    # ================= UI =================
-    def _create_widgets(self):
+        self.window.protocol("WM_DELETE_WINDOW", self.go_back)
+
+    # ---------------- STYLE ---------------- #
+
+    def _setup_style(self):
         style = ttk.Style()
         style.theme_use("clam")
 
-        # Title
+        style.configure("Title.TLabel", font=("Segoe UI", 20, "bold"))
+
+        style.configure("Section.TLabelframe", padding=18)
+        style.configure("Section.TLabelframe.Label", font=("Segoe UI", 12, "bold"))
+
+        style.configure("TEntry", font=("Segoe UI", 11))
+        style.configure("TButton", font=("Segoe UI", 11), padding=6)
+
+        style.configure("Action.TButton", font=("Segoe UI", 11, "bold"), padding=8)
+
+        style.configure(
+            "Danger.TButton",
+            font=("Segoe UI", 11, "bold"),
+            padding=8,
+            foreground="white",
+            background="#d9534f",
+        )
+
+        style.map("Danger.TButton", background=[("active", "#c9302c")])
+
+        style.configure("Treeview", font=("Segoe UI", 11), rowheight=30)
+        style.configure("Treeview.Heading", font=("Segoe UI", 12, "bold"))
+
+    # ---------------- UI ---------------- #
+
+    def _create_widgets(self):
+
+        # Header
+        header = ttk.Frame(self.window, padding=12)
+        header.pack(fill="x")
+
+        ttk.Button(
+            header,
+            text="⬅ Back to Dashboard",
+            style="Action.TButton",
+            command=self.go_back
+        ).pack(anchor="w")
+
         ttk.Label(
             self.window,
             text="Salary Structure",
-            font=("Segoe UI", 16, "bold")
-        ).pack(pady=10)
+            style="Title.TLabel"
+        ).pack(pady=(5, 15))
 
-        container = ttk.Frame(self.window, padding=10)
-        container.pack(fill="both", expand=True)
+        # Main layout
+        main_frame = ttk.Frame(self.window)
+        main_frame.pack(fill="both", expand=True, padx=15, pady=10)
 
-        container.columnconfigure(0, weight=1)
-        container.columnconfigure(1, weight=2)
+        main_frame.columnconfigure(0, weight=1)
+        main_frame.columnconfigure(1, weight=2)
 
         # -------- FORM --------
-        form_frame = ttk.LabelFrame(container, text="Details", padding=10)
-        form_frame.grid(row=0, column=0, sticky="nsew", padx=(0, 10))
+        form_frame = ttk.Labelframe(
+            main_frame,
+            text="Salary Details",
+            style="Section.TLabelframe"
+        )
+        form_frame.grid(row=0, column=0, sticky="nsew", padx=(0, 15))
 
         labels = [
             "Name",
@@ -54,10 +105,10 @@ class SalaryWindow:
         self.entries = {}
 
         for i, label in enumerate(labels):
-            ttk.Label(form_frame, text=label).grid(row=i, column=0, sticky="w", pady=5)
+            ttk.Label(form_frame, text=label).grid(row=i, column=0, sticky="w", pady=10)
 
-            entry = ttk.Entry(form_frame, width=25)
-            entry.grid(row=i, column=1, pady=5, padx=5, sticky="ew")
+            entry = ttk.Entry(form_frame, width=30)
+            entry.grid(row=i, column=1, pady=10)
 
             self.entries[label] = entry
 
@@ -65,49 +116,56 @@ class SalaryWindow:
 
         # Buttons
         btn_frame = ttk.Frame(form_frame)
-        btn_frame.grid(row=len(labels), column=0, columnspan=2, pady=15)
+        btn_frame.grid(row=len(labels), column=0, columnspan=2, pady=20)
 
-        ttk.Button(btn_frame, text="Add", command=self.add_structure).grid(row=0, column=0, padx=5)
-        ttk.Button(btn_frame, text="Update", command=self.update_structure).grid(row=0, column=1, padx=5)
-        ttk.Button(btn_frame, text="Clear", command=self.clear_form).grid(row=0, column=2, padx=5)
+        ttk.Button(
+            btn_frame,
+            text="Add",
+            style="Action.TButton",
+            command=self.add_structure
+        ).pack(side="left", padx=5)
+
+        ttk.Button(
+            btn_frame,
+            text="Update",
+            style="Action.TButton",
+            command=self.update_structure
+        ).pack(side="left", padx=5)
+
+        ttk.Button(
+            btn_frame,
+            text="Clear",
+            style="Danger.TButton",
+            command=self.clear_form
+        ).pack(side="left", padx=5)
 
         # -------- TABLE --------
-        table_frame = ttk.Frame(container)
+        table_frame = ttk.Frame(main_frame)
         table_frame.grid(row=0, column=1, sticky="nsew")
 
         columns = ("ID", "Name", "Min", "Max", "HRA %", "Transport", "Tax %")
 
-        self.tree = ttk.Treeview(
-            table_frame,
-            columns=columns,
-            show="headings",
-            height=15
-        )
+        self.tree = ttk.Treeview(table_frame, columns=columns, show="headings")
+
+        self.tree.pack(side="left", fill="both", expand=True)
 
         scrollbar = ttk.Scrollbar(table_frame, orient="vertical", command=self.tree.yview)
+        scrollbar.pack(side="right", fill="y")
+
         self.tree.configure(yscrollcommand=scrollbar.set)
 
-        self.tree.grid(row=0, column=0, sticky="nsew")
-        scrollbar.grid(row=0, column=1, sticky="ns")
-
-        table_frame.rowconfigure(0, weight=1)
-        table_frame.columnconfigure(0, weight=1)
-
-        widths = [50, 130, 100, 100, 80, 120, 80]
-
-        for col, w in zip(columns, widths):
+        for col in columns:
             self.tree.heading(col, text=col)
-            self.tree.column(col, anchor="center", width=w)
+            self.tree.column(col, anchor="center", width=120)
 
         self.tree.bind("<<TreeviewSelect>>", self.on_select)
 
-    # ================= DATA =================
+    # ---------------- DATA ---------------- #
+
     def load_structures(self):
         self.tree.delete(*self.tree.get_children())
 
-        structures = self.salary_dao.get_all()
-
-        for s in structures:
+        for s in self.salary_dao.get_all():
             self.tree.insert(
                 "",
                 "end",
@@ -122,7 +180,8 @@ class SalaryWindow:
                 ),
             )
 
-    # ================= ACTIONS =================
+    # ---------------- ACTIONS ---------------- #
+
     def add_structure(self):
         try:
             structure = self._read_form(None)
@@ -173,7 +232,8 @@ class SalaryWindow:
         for entry in self.entries.values():
             entry.delete(0, tk.END)
 
-    # ================= VALIDATION =================
+    # ---------------- VALIDATION ---------------- #
+
     def _read_form(self, structure_id):
         try:
             name = self.entries["Name"].get().strip()
@@ -203,3 +263,10 @@ class SalaryWindow:
             transport_allowance=transport,
             tax_rate_pct=tax_pct,
         )
+
+    # ---------------- NAVIGATION ---------------- #
+
+    def go_back(self):
+        self.window.grab_release()
+        self.window.destroy()
+        self.dashboard_root.deiconify()
