@@ -26,7 +26,7 @@ class DashboardWindow:
     def _setup_style(self):
 
         self.style = ttk.Style()
-        self.style.theme_use("clam")
+        self.style.theme_use("default")
 
         self.root.configure(bg="#eef2f7")
 
