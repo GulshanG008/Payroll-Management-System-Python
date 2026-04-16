@@ -1,3 +1,4 @@
+import tkinter as tk
 from tkinter import messagebox, ttk
 
 from gui.attendance_window import AttendanceWindow
@@ -14,28 +15,22 @@ class DashboardWindow:
 
         self.root.title("Payroll Management System - Dashboard")
 
-        # Full screen
         self.root.state("zoomed")
-
-        # Minimum window size
         self.root.minsize(900, 600)
 
         self._setup_style()
         self._create_widgets()
+
+    # ---------------- STYLE ---------------- #
 
     def _setup_style(self):
 
         self.style = ttk.Style()
         self.style.theme_use("clam")
 
-        # main background
         self.root.configure(bg="#eef2f7")
 
-        # header
-        self.style.configure(
-            "Header.TFrame",
-            background="#1f3c5b",
-        )
+        self.style.configure("Header.TFrame", background="#1f3c5b")
 
         self.style.configure(
             "Header.TLabel",
@@ -51,12 +46,12 @@ class DashboardWindow:
             font=("Segoe UI", 11),
         )
 
-        # module buttons
         self.style.configure(
-            "Dashboard.TButton", font=("Segoe UI", 13, "bold"), padding=18
+            "Dashboard.TButton",
+            font=("Segoe UI", 13, "bold"),
+            padding=18,
         )
 
-        # logout button
         self.style.configure(
             "Logout.TButton",
             font=("Segoe UI", 12, "bold"),
@@ -67,6 +62,8 @@ class DashboardWindow:
 
         self.style.map("Logout.TButton", background=[("active", "#c0392b")])
 
+    # ---------------- UI ---------------- #
+
     def _create_widgets(self):
 
         admin = self.auth_service.current_user
@@ -75,12 +72,16 @@ class DashboardWindow:
         header = ttk.Frame(self.root, style="Header.TFrame", height=70)
         header.pack(fill="x")
 
-        ttk.Label(header, text="Payroll Management System", style="Header.TLabel").pack(
-            side="left", padx=25
-        )
+        ttk.Label(
+            header,
+            text="Payroll Management System",
+            style="Header.TLabel"
+        ).pack(side="left", padx=25)
 
         ttk.Label(
-            header, text=f"Logged in as: {admin['username']}", style="SubHeader.TLabel"
+            header,
+            text=f"Logged in as: {admin['username']}",
+            style="SubHeader.TLabel"
         ).pack(side="right", padx=25)
 
         # Main container
@@ -104,7 +105,7 @@ class DashboardWindow:
             card,
             text="Generate Payroll",
             style="Dashboard.TButton",
-            command=self.generate_payroll,
+            command=self.open_payroll_window,
             width=25,
         ).grid(row=0, column=1, padx=30, pady=30)
 
@@ -124,7 +125,7 @@ class DashboardWindow:
             width=25,
         ).grid(row=1, column=1, padx=30, pady=30)
 
-        # Logout section
+        # Logout
         logout_frame = ttk.Frame(self.root)
         logout_frame.pack(pady=20)
 
@@ -136,26 +137,21 @@ class DashboardWindow:
             width=20,
         ).pack()
 
+    # ---------------- NAVIGATION ---------------- #
+
     def open_employee_window(self):
-        self.root.withdraw()
         EmployeeManagerWindow(self.root, self.root)
 
     def open_attendance_window(self):
-        self.root.withdraw()
         AttendanceWindow(self.root, self.root)
 
     def open_salary_window(self):
-        self.root.withdraw()
         SalaryWindow(self.root, self.root)
 
-    def generate_payroll(self):
-        try:
-            print("CLICKED PAYROLL")
-            self.root.withdraw()
-            PayrollWindow(self.root, self.root)
-        except Exception as e:
-            print("ERROR:", e)
-            self.root.deiconify()
+    def open_payroll_window(self):
+        PayrollWindow(self.root, self.root)
+
+    # ---------------- LOGOUT ---------------- #
 
     def logout(self):
         if messagebox.askyesno("Confirm Logout", "Are you sure you want to logout?"):

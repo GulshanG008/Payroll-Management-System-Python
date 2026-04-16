@@ -13,11 +13,9 @@ class AttendanceWindow:
 
         self.window = tk.Toplevel(parent)
         self.window.title("Employee Attendance")
+
         self.window.state("zoomed")
         self.window.minsize(900, 600)
-
-        self.window.transient(parent)
-        self.window.grab_set()
 
         self.employee_dao = EmployeeDAO()
         self.attendance_service = AttendanceService()
@@ -76,36 +74,30 @@ class AttendanceWindow:
         form = ttk.Frame(self.window)
         form.pack(pady=10)
 
-        # Employee
         ttk.Label(form, text="Employee").grid(row=0, column=0, pady=8, sticky="e")
 
         self.employee_combo = ttk.Combobox(form, width=30, state="readonly")
         self.employee_combo.grid(row=0, column=1, pady=8)
 
-        # Month-Year
         ttk.Label(form, text="Month (YYYY-MM)").grid(row=1, column=0, pady=8, sticky="e")
 
         self.month_entry = ttk.Entry(form, width=33)
         self.month_entry.grid(row=1, column=1, pady=8)
         self.month_entry.insert(0, "2025-03")
 
-        # Days Worked
         ttk.Label(form, text="Days Worked").grid(row=2, column=0, pady=8, sticky="e")
 
         self.days_worked_entry = ttk.Entry(form, width=33)
         self.days_worked_entry.grid(row=2, column=1, pady=8)
 
-        # Days Absent
         ttk.Label(form, text="Days Absent (Auto)").grid(row=3, column=0, pady=8, sticky="e")
 
         self.days_absent_entry = ttk.Entry(form, width=33, state="readonly")
         self.days_absent_entry.grid(row=3, column=1, pady=8)
 
-        # Bind auto calculation
         self.days_worked_entry.bind("<KeyRelease>", lambda e: self.calculate_absent_days())
         self.month_entry.bind("<KeyRelease>", lambda e: self.calculate_absent_days())
 
-        # Buttons
         btn_frame = ttk.Frame(self.window)
         btn_frame.pack(pady=15)
 
@@ -130,7 +122,6 @@ class AttendanceWindow:
             command=self.clear_form
         ).pack(side="left", padx=10)
 
-        # Table
         table_frame = ttk.Frame(self.window)
         table_frame.pack(fill="both", expand=True, padx=10, pady=10)
 
@@ -253,6 +244,4 @@ class AttendanceWindow:
     # ---------------- NAVIGATION ---------------- #
 
     def go_back(self):
-        self.window.grab_release()
         self.window.destroy()
-        self.dashboard_root.deiconify()
