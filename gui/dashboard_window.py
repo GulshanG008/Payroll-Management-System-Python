@@ -137,19 +137,31 @@ class DashboardWindow:
             width=20,
         ).pack()
 
+    def restore_window(self):
+        self.root.state("zoomed")
+        self.root.update_idletasks()
+
     # ---------------- NAVIGATION ---------------- #
 
     def open_employee_window(self):
-        EmployeeManagerWindow(self.root, self.root)
+        window = EmployeeManagerWindow(self.root, self.root)
+        self.root.wait_window(window.window)
+        self.restore_window()
 
     def open_attendance_window(self):
-        AttendanceWindow(self.root, self.root)
+        window = AttendanceWindow(self.root, self.root)
+        self.root.wait_window(window.window)
+        self.restore_window()
 
     def open_salary_window(self):
-        SalaryWindow(self.root, self.root)
+        window = SalaryWindow(self.root, self.root)
+        self.root.wait_window(window.window)
+        self.restore_window()
 
     def open_payroll_window(self):
-        PayrollWindow(self.root, self.root)
+        window = PayrollWindow(self.root, self.root)
+        self.root.wait_window(window.window)
+        self.restore_window()
 
     # ---------------- LOGOUT ---------------- #
 
