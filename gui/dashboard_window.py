@@ -146,7 +146,7 @@ class DashboardWindow:
 
     def open_employee_window(self):
         window = EmployeeManagerWindow(self.root, self.root)
-        self.root.wait_window(window.window)
+        #self.root.wait_window(window.window)
         self.restore_window()
 
     def open_attendance_window(self):
