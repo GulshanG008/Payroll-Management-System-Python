@@ -23,88 +23,55 @@ class EmployeeManagerWindow:
         self._create_widgets()
         self.load_employees()
 
-        self.root.protocol("WM_DELETE_WINDOW", self.go_back)
+        # ✅ FIXED
+        self.window.protocol("WM_DELETE_WINDOW", self.go_back)
 
     # ---------------- STYLE ---------------- #
 
     def _setup_style(self):
         style = ttk.Style()
-
         style.theme_use("default")
 
-        # Base colors
-        style.configure(".",
-            background="#f5f5f5",
-            foreground="#333333"
-        )
+        style.configure(".", background="#f5f5f5", foreground="#333")
 
-        # Title
         style.configure("Title.TLabel",
-            font=("Segoe UI", 20, "bold"),
-            background="#f5f5f5"
-        )
+                        font=("Segoe UI", 20, "bold"))
 
-        # Section
         style.configure("Section.TLabelframe",
-            background="#f5f5f5",
-            padding=18
-        )
+                        padding=18)
 
         style.configure("Section.TLabelframe.Label",
-            font=("Segoe UI", 12, "bold"),
-            background="#f5f5f5"
-        )
+                        font=("Segoe UI", 12, "bold"))
 
-        # Inputs
         style.configure("TEntry", fieldbackground="#ffffff")
         style.configure("TCombobox", fieldbackground="#ffffff")
 
-        style.map("TEntry",
-            bordercolor=[("focus", "#999999")]
-        )
-
-        style.map("TCombobox",
-            bordercolor=[("focus", "#999999")]
-        )
-
-        # Buttons
         style.configure("Success.TButton",
-            font=("Segoe UI", 11, "bold"),
-            padding=8,
-            foreground="white",
-            background="#28a745"
-        )
+                        font=("Segoe UI", 11, "bold"),
+                        padding=8,
+                        foreground="white",
+                        background="#28a745")
 
         style.map("Success.TButton",
-            background=[("active", "#218838")]
-        )
+                  background=[("active", "#218838")])
 
         style.configure("Danger.TButton",
-            font=("Segoe UI", 11, "bold"),
-            padding=8,
-            foreground="white",
-            background="#d9534f"
-        )
+                        font=("Segoe UI", 11, "bold"),
+                        padding=8,
+                        foreground="white",
+                        background="#d9534f")
 
         style.map("Danger.TButton",
-            background=[("active", "#c9302c")]
-        )
+                  background=[("active", "#c9302c")])
 
-        # Table
         style.configure("Treeview",
-            background="#ffffff",
-            fieldbackground="#ffffff",
-            rowheight=30
-        )
-
-        style.configure("Treeview.Heading",
-            font=("Segoe UI", 12, "bold")
-        )
+                        background="#ffffff",
+                        fieldbackground="#ffffff",
+                        rowheight=30)
 
         style.map("Treeview",
-            background=[("selected", "#d6d6d6")],
-            foreground=[("selected", "#000000")]
-        )
+                  background=[("selected", "#d6d6d6")],
+                  foreground=[("selected", "#000")])
 
     # ---------------- UI ---------------- #
 
@@ -116,17 +83,16 @@ class EmployeeManagerWindow:
         ttk.Button(
             header,
             text="⬅ Back to Dashboard",
-            style="Action.TButton",
             command=self.go_back,
         ).pack(anchor="w")
 
         ttk.Label(
-            self.root,
+            self.window,
             text="Employee Management",
             style="Title.TLabel",
         ).pack(pady=(5, 15))
 
-        main_frame = ttk.Frame(self.root)
+        main_frame = ttk.Frame(self.window)
         main_frame.pack(fill="both", expand=True, padx=15, pady=10)
 
         # -------- FORM --------
@@ -190,10 +156,7 @@ class EmployeeManagerWindow:
 
         for col in columns:
             self.tree.heading(col, text=col)
-            self.tree.column(col, anchor="center", width=120, stretch=True)
-
-        self.tree.column("Name", width=220)
-        self.tree.column("Code", width=150)
+            self.tree.column(col, anchor="center", width=120)
 
         # Buttons
         button_bar = ttk.Frame(table_frame)
@@ -219,19 +182,15 @@ class EmployeeManagerWindow:
         self.tree.delete(*self.tree.get_children())
 
         for emp in self.dao.get_all_active():
-            self.tree.insert(
-                "",
-                "end",
-                values=(
-                    emp["emp_id"],
-                    emp["emp_code"],
-                    emp["full_name"],
-                    emp["gender"],
-                    emp["contact_no"],
-                    emp["basic_salary"],
-                    emp["status"],
-                ),
-            )
+            self.tree.insert("", "end", values=(
+                emp["emp_id"],
+                emp["emp_code"],
+                emp["full_name"],
+                emp["gender"],
+                emp["contact_no"],
+                emp["basic_salary"],
+                emp["status"],
+            ))
 
     # ---------------- ACTIONS ---------------- #
 
@@ -239,10 +198,6 @@ class EmployeeManagerWindow:
         try:
             emp_code = self.entries["Employee Code"].get().strip()
             full_name = self.entries["Full Name"].get().strip()
-            gender = self.entries["Gender"].get().strip()
-            contact = self.entries["Contact No"].get().strip()
-            email = self.entries["Email"].get().strip()
-            salary = Decimal(self.entries["Basic Salary"].get().strip())
 
             if not emp_code or not full_name:
                 raise ValueError("Employee Code and Full Name are required")
@@ -250,56 +205,39 @@ class EmployeeManagerWindow:
             self.dao.create_employee(
                 emp_code=emp_code,
                 full_name=full_name,
-                gender=gender,
-                contact_no=contact,
-                email=email,
+                gender=self.entries["Gender"].get(),
+                contact_no=self.entries["Contact No"].get(),
+                email=self.entries["Email"].get(),
                 date_of_joining=date.today(),
-                basic_salary=salary,
+                basic_salary=Decimal(self.entries["Basic Salary"].get()),
                 structure_id=None,
             )
 
             self.load_employees()
-
             messagebox.showinfo("Success", "Employee added successfully")
-
-            for entry in self.entries.values():
-                entry.delete(0, tk.END)
 
         except Exception as e:
             messagebox.showerror("Error", str(e))
 
     def deactivate_employee(self):
         selected = self.tree.focus()
-
         if not selected:
-            messagebox.showerror("Error", "Please select an employee")
             return
 
         emp_id = self.tree.item(selected)["values"][0]
-
-        if messagebox.askyesno("Confirm Deactivation",
-                              "Deactivate this employee?\n\nThey will no longer appear in payroll."):
-            self.dao.deactivate_employee(emp_id)
-            self.load_employees()
+        self.dao.deactivate_employee(emp_id)
+        self.load_employees()
 
     def delete_employee(self):
         selected = self.tree.focus()
-
         if not selected:
-            messagebox.showerror("Error", "Please select an employee")
             return
 
         emp_id = self.tree.item(selected)["values"][0]
-
-        if not messagebox.askyesno("Confirm Permanent Deletion",
-                                  "This will permanently delete the employee record.\n\n"
-                                  "This action cannot be undone.\n\nDo you want to continue?"):
-            return
-
         self.dao.delete_employee(emp_id)
         self.load_employees()
 
     # ---------------- NAVIGATION ---------------- #
 
     def go_back(self):
-        self.root.destroy()
+        self.window.destroy()
