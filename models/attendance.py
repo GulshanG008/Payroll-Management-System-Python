@@ -1,6 +1,5 @@
 # models/attendance.py
 
-
 class Attendance:
     def __init__(
         self,

@@ -1,4 +1,5 @@
 # database/connection.py
+
 from mysql.connector import Error, pooling
 
 
