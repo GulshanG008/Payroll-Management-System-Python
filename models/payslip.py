@@ -1,14 +1,14 @@
-# models/payslip.py
-
 from decimal import Decimal
 
 
 class Payslip:
+
     def __init__(
         self,
         payroll_id: int,
         emp_id: int,
-        month_year: str,
+        month: int,
+        year: int,
         basic_salary: Decimal,
         hra: Decimal,
         da: Decimal,
@@ -17,11 +17,22 @@ class Payslip:
         tax: Decimal,
         gross_salary: Decimal,
         net_salary: Decimal,
-        pdf_path: str,
+        pdf_path: str = None,
     ):
+
+        if month < 1 or month > 12:
+            raise ValueError("Invalid month")
+
+        if year < 2000:
+            raise ValueError("Invalid year")
+
+        if net_salary < 0:
+            raise ValueError("Invalid net salary")
+
         self.payroll_id = payroll_id
         self.emp_id = emp_id
-        self.month_year = month_year
+        self.month = month
+        self.year = year
         self.basic_salary = basic_salary
         self.hra = hra
         self.da = da
@@ -35,9 +46,9 @@ class Payslip:
     def __repr__(self):
         return (
             f"Payslip("
-            f"PayrollID={self.payroll_id}, "
+            f"ID={self.payroll_id}, "
             f"EmpID={self.emp_id}, "
-            f"Month='{self.month_year}', "
+            f"Month={self.month}/{self.year}, "
             f"NetSalary={self.net_salary})"
         )
 
@@ -45,7 +56,8 @@ class Payslip:
         return {
             "payroll_id": self.payroll_id,
             "emp_id": self.emp_id,
-            "month_year": self.month_year,
+            "month": self.month,
+            "year": self.year,
             "basic_salary": self.basic_salary,
             "hra": self.hra,
             "da": self.da,
@@ -66,16 +78,17 @@ class Payslip:
             return Decimal(str(value)) if value is not None else Decimal("0.00")
 
         return Payslip(
-            payroll_id=record.get("payroll_id"),
-            emp_id=record.get("emp_id"),
-            month_year=record.get("month_year"),
-            basic_salary=safe_decimal(record.get("basic_salary")),
-            hra=safe_decimal(record.get("hra")),
-            da=safe_decimal(record.get("da")),
-            transport_allowance=safe_decimal(record.get("transport_allowance")),
-            pf=safe_decimal(record.get("pf")),
-            tax=safe_decimal(record.get("tax")),
-            gross_salary=safe_decimal(record.get("gross_salary")),
-            net_salary=safe_decimal(record.get("net_salary")),
+            payroll_id=record["payroll_id"],
+            emp_id=record["emp_id"],
+            month=record["month"],
+            year=record["year"],
+            basic_salary=safe_decimal(record["basic_salary"]),
+            hra=safe_decimal(record["hra"]),
+            da=safe_decimal(record["da"]),
+            transport_allowance=safe_decimal(record["transport_allowance"]),
+            pf=safe_decimal(record["pf"]),
+            tax=safe_decimal(record["tax"]),
+            gross_salary=safe_decimal(record["gross_salary"]),
+            net_salary=safe_decimal(record["net_salary"]),
             pdf_path=record.get("pdf_path"),
         )

@@ -15,9 +15,10 @@ class SalaryDAO:
         query = """
             INSERT INTO salary_structure (
                 name, base_salary_min, base_salary_max,
-                housing_allowance_pct, transport_allowance, tax_rate_pct
+                housing_allowance_pct, transport_allowance,
+                tax_rate_pct, da_pct, pf_pct
             )
-            VALUES (%s, %s, %s, %s, %s, %s)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
         """
 
         return execute_query(
@@ -29,6 +30,8 @@ class SalaryDAO:
                 structure.housing_allowance_pct,
                 structure.transport_allowance,
                 structure.tax_rate_pct,
+                structure.da_pct,
+                structure.pf_pct,
             ),
         )
 
@@ -66,8 +69,14 @@ class SalaryDAO:
 
         query = """
             UPDATE salary_structure
-            SET name=%s, base_salary_min=%s, base_salary_max=%s,
-                housing_allowance_pct=%s, transport_allowance=%s, tax_rate_pct=%s
+            SET name=%s,
+                base_salary_min=%s,
+                base_salary_max=%s,
+                housing_allowance_pct=%s,
+                transport_allowance=%s,
+                tax_rate_pct=%s,
+                da_pct=%s,
+                pf_pct=%s
             WHERE structure_id = %s
         """
 
@@ -80,6 +89,8 @@ class SalaryDAO:
                 structure.housing_allowance_pct,
                 structure.transport_allowance,
                 structure.tax_rate_pct,
+                structure.da_pct,
+                structure.pf_pct,
                 structure.structure_id,
             ),
         )
