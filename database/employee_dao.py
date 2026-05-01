@@ -1,29 +1,11 @@
-# database/employee_dao.py
-
 from decimal import Decimal
 from typing import List, Optional
 
-from database.connection import get_db_connection, get_db_cursor, release_db_connection
+from database.connection import execute_query
 
 
 class EmployeeDAO:
-    # EMPTY TABLE INITTIALIZATION
-    def empty_table_initialization(self):
-        conn = get_db_connection()
-        cursor = get_db_cursor(conn)
 
-        try:
-            cursor.execute("SELECT COUNT(*) AS total FROM employee")
-            result = cursor.fetchone()
-
-            if result["total"] == 0:
-                cursor.execute("ALTER TABLE employee AUTO_INCREMENT = 1")
-                conn.commit()
-
-        finally:
-            release_db_connection(conn)
-
-    # CREATE
     def create_employee(
         self,
         emp_code: str,
@@ -35,8 +17,21 @@ class EmployeeDAO:
         basic_salary: Decimal,
         structure_id: Optional[int] = None,
     ) -> int:
+
+        if basic_salary < 0:
+            raise ValueError("Salary cannot be negative")
+
         query = """
             INSERT INTO employee (
+                emp_code, full_name, gender, contact_no,
+                email, date_of_joining, basic_salary, structure_id
+            )
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+        """
+
+        return execute_query(
+            query,
+            (
                 emp_code,
                 full_name,
                 gender,
@@ -44,68 +39,18 @@ class EmployeeDAO:
                 email,
                 date_of_joining,
                 basic_salary,
-                structure_id
-            )
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-        """
+                structure_id,
+            ),
+        )
 
-        conn = get_db_connection()
-        cursor = get_db_cursor(conn)
-
-        try:
-            cursor.execute(
-                query,
-                (
-                    emp_code,
-                    full_name,
-                    gender,
-                    contact_no,
-                    email,
-                    date_of_joining,
-                    basic_salary,
-                    structure_id,
-                ),
-            )
-            conn.commit()
-            return cursor.lastrowid
-        finally:
-            release_db_connection(conn)
-
-    # READ BY ID
     def get_by_id(self, emp_id: int) -> Optional[dict]:
-        query = """
-            SELECT *
-            FROM employee
-            WHERE emp_id = %s
-        """
+        query = "SELECT * FROM employee WHERE emp_id = %s"
+        return execute_query(query, (emp_id,), fetch_one=True)
 
-        conn = get_db_connection()
-        cursor = get_db_cursor(conn)
-
-        try:
-            cursor.execute(query, (emp_id,))
-            return cursor.fetchone()
-        finally:
-            release_db_connection(conn)
-
-    # READ BY EMP CODE
     def get_by_emp_code(self, emp_code: str) -> Optional[dict]:
-        query = """
-            SELECT *
-            FROM employee
-            WHERE emp_code = %s
-        """
+        query = "SELECT * FROM employee WHERE emp_code = %s"
+        return execute_query(query, (emp_code,), fetch_one=True)
 
-        conn = get_db_connection()
-        cursor = get_db_cursor(conn)
-
-        try:
-            cursor.execute(query, (emp_code,))
-            return cursor.fetchone()
-        finally:
-            release_db_connection(conn)
-
-    # READ ALL ACTIVE EMPLOYEES
     def get_all_active(self) -> List[dict]:
         query = """
             SELECT *
@@ -113,17 +58,8 @@ class EmployeeDAO:
             WHERE status = 'ACTIVE'
             ORDER BY emp_id
         """
+        return execute_query(query, fetch_all=True)
 
-        conn = get_db_connection()
-        cursor = get_db_cursor(conn)
-
-        try:
-            cursor.execute(query)
-            return cursor.fetchall()
-        finally:
-            release_db_connection(conn)
-
-    # UPDATE
     def update_employee(
         self,
         emp_id: int,
@@ -134,90 +70,42 @@ class EmployeeDAO:
         basic_salary: Decimal,
         structure_id: Optional[int],
     ) -> bool:
+
+        if basic_salary < 0:
+            raise ValueError("Salary cannot be negative")
+
         query = """
             UPDATE employee
-            SET
-                full_name = %s,
-                gender = %s,
-                contact_no = %s,
-                email = %s,
-                basic_salary = %s,
-                structure_id = %s
+            SET full_name=%s, gender=%s, contact_no=%s,
+                email=%s, basic_salary=%s, structure_id=%s
             WHERE emp_id = %s
         """
 
-        conn = get_db_connection()
-        cursor = get_db_cursor(conn)
+        result = execute_query(
+            query,
+            (
+                full_name,
+                gender,
+                contact_no,
+                email,
+                basic_salary,
+                structure_id,
+                emp_id,
+            ),
+        )
 
-        try:
-            cursor.execute(
-                query,
-                (
-                    full_name,
-                    gender,
-                    contact_no,
-                    email,
-                    basic_salary,
-                    structure_id,
-                    emp_id,
-                ),
-            )
-            conn.commit()
-            return cursor.rowcount > 0
-        except Exception:
-            conn.rollback()
-            raise
+        return result is not None
 
-        finally:
-            release_db_connection(conn)
-
-    # DEACTIVATE (SOFT DELETE)
     def deactivate_employee(self, emp_id: int) -> bool:
         query = """
             UPDATE employee
             SET status = 'INACTIVE'
             WHERE emp_id = %s
         """
+        result = execute_query(query, (emp_id,))
+        return result is not None
 
-        conn = get_db_connection()
-        cursor = get_db_cursor(conn)
-
-        try:
-            cursor.execute(query, (emp_id,))
-            conn.commit()
-            return cursor.rowcount > 0
-
-        except Exception:
-            conn.rollback()
-            raise
-
-        finally:
-            release_db_connection(conn)
-
-    # DELETE
     def delete_employee(self, emp_id: int) -> bool:
-        query = """
-            DELETE FROM employee
-            WHERE emp_id = %s
-        """
-
-        conn = get_db_connection()
-        cursor = get_db_cursor(conn)
-
-        try:
-            cursor.execute(query, (emp_id,))
-            conn.commit()
-
-            deleted = cursor.rowcount > 0
-
-        except Exception:
-            conn.rollback()
-            raise
-
-        finally:
-            release_db_connection(conn)
-
-        if deleted:
-            self.empty_table_initialization()
-
-        return deleted
+        query = "DELETE FROM employee WHERE emp_id = %s"
+        result = execute_query(query, (emp_id,))
+        return result is not None

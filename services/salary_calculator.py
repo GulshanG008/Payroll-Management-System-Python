@@ -1,5 +1,3 @@
-# services/salary_calculator.py
-
 from decimal import ROUND_HALF_UP, Decimal
 from typing import Optional
 
@@ -8,32 +6,42 @@ from models.salary_structure import SalaryStructure
 
 
 class SalaryCalculator:
+
     def __init__(self, working_days_in_month: int = 30):
         self.working_days_in_month = working_days_in_month
 
-    # CORE SALARY CALCULATION
     def calculate_salary(
         self,
         basic_salary: Decimal,
         salary_structure: SalaryStructure,
         attendance: Optional[Attendance] = None,
     ) -> dict:
+
         if basic_salary <= 0:
             raise ValueError("Basic salary must be greater than zero")
+
+        if salary_structure.housing_allowance_pct < 0 or salary_structure.tax_rate_pct < 0:
+            raise ValueError("Invalid percentage values")
 
         # ---------- Attendance Proration ----------
         payable_basic = basic_salary
 
         if attendance:
-            total_days = attendance.days_worked + attendance.days_absent
-            if total_days > 0:
-                payable_basic = (
-                    basic_salary * Decimal(attendance.days_worked) / Decimal(total_days)
-                )
+            if attendance.days_worked < 0:
+                raise ValueError("Invalid attendance")
+
+            payable_basic = (
+                basic_salary * Decimal(attendance.days_worked)
+                / Decimal(self.working_days_in_month)
+            )
 
         # ---------- Earnings ----------
         hra = payable_basic * salary_structure.housing_allowance_pct
-        transport = salary_structure.transport_allowance
+
+        transport = (
+            salary_structure.transport_allowance
+            * (payable_basic / basic_salary)
+        )
 
         gross_salary = payable_basic + hra + transport
 
@@ -41,6 +49,9 @@ class SalaryCalculator:
         tax = gross_salary * salary_structure.tax_rate_pct
 
         net_salary = gross_salary - tax
+
+        if net_salary < 0:
+            net_salary = Decimal("0.00")
 
         # ---------- Rounding ----------
         return {
@@ -52,6 +63,5 @@ class SalaryCalculator:
             "net_salary": self._round(net_salary),
         }
 
-    # UTILITY
     def _round(self, value: Decimal) -> Decimal:
         return value.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
