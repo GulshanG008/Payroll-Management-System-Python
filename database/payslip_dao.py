@@ -6,10 +6,13 @@ class PayslipDAO:
     def create_payslip(
         self,
         emp_id: int,
-        month_year: str,
+        month: int,
+        year: int,
         basic_salary,
         hra,
+        da,
         transport_allowance,
+        pf,
         tax,
         gross_salary,
         net_salary,
@@ -20,20 +23,25 @@ class PayslipDAO:
 
         query = """
             INSERT INTO payroll (
-                emp_id, month_year, basic_salary, hra,
-                transport_allowance, tax, gross_salary, net_salary
+                emp_id, month, year,
+                basic_salary, hra, da,
+                transport_allowance, pf, tax,
+                gross_salary, net_salary
             )
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
 
         return execute_query(
             query,
             (
                 emp_id,
-                month_year,
+                month,
+                year,
                 basic_salary,
                 hra,
+                da,
                 transport_allowance,
+                pf,
                 tax,
                 gross_salary,
                 net_salary,
@@ -46,23 +54,22 @@ class PayslipDAO:
             SET pdf_path = %s
             WHERE payroll_id = %s
         """
-
         result = execute_query(query, (pdf_path, payroll_id))
         return result is not None
 
-    def get_by_employee_and_month(self, emp_id: int, month_year: str):
+    def get_by_employee_and_month(self, emp_id: int, month: int, year: int):
         query = """
             SELECT *
             FROM payroll
-            WHERE emp_id = %s AND month_year = %s
+            WHERE emp_id = %s AND month = %s AND year = %s
         """
-        return execute_query(query, (emp_id, month_year), fetch_one=True)
+        return execute_query(query, (emp_id, month, year), fetch_one=True)
 
     def get_all_for_employee(self, emp_id: int):
         query = """
             SELECT *
             FROM payroll
             WHERE emp_id = %s
-            ORDER BY month_year DESC
+            ORDER BY year DESC, month DESC
         """
         return execute_query(query, (emp_id,), fetch_all=True)
